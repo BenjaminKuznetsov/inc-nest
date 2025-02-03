@@ -22,6 +22,15 @@ export class User {
   @Prop({ enum: DeletionStatus, default: DeletionStatus.NotDeleted })
   deletionStatus: DeletionStatus;
 
+  /**
+   * Creation timestamp
+   * Explicitly defined despite timestamps: true
+   * properties without @Prop for typescript so that they are in the class instance (or in instance methods)
+   * @type {Date}
+   */
+  createdAt: Date;
+  updatedAt: Date;
+
   static createInstance(dto: CreateUserDto): UserDocument {
     //userDocument!
     const user = new this(); //UserModel!
@@ -49,4 +58,8 @@ UserSchema.loadClass(User);
 export type UserDocument = HydratedDocument<User>;
 
 //Типизация модели + статические методы
-export type UserModelType = Model<UserDocument> & typeof User;
+// export type UserModelType = Model<UserDocument> & typeof User & { createdAt: Date; updatedAt: Date };
+export type UserModelType = Model<UserDocument> & {
+  createdAt: Date;
+  updatedAt: Date;
+};
