@@ -8,7 +8,6 @@ import { UsersRepository } from '../infrastructure/users.repository';
 @Injectable()
 export class UsersService {
   constructor(
-    //инжектирование модели в сервис через DI
     @InjectModel(User.name) private UserModel: UserModelType,
     private usersRepository: UsersRepository,
   ) {}
@@ -24,25 +23,12 @@ export class UsersService {
     });
 
     await this.usersRepository.save(user);
-
     return user._id.toString();
   }
 
-  // async updateUser(id: string, dto: UpdateUserDto): Promise<string> {
-  //   const user = await this.usersRepository.findOrNotFoundFail(id);
-  //
-  //   user.update(dto);
-  //
-  //   await this.usersRepository.save(user);
-  //
-  //   return user._id.toString();
-  // }
-
   async deleteUser(id: string) {
     const user = await this.usersRepository.findOrNotFoundFail(id);
-
     user.makeDeleted();
-
     await this.usersRepository.save(user);
   }
 }

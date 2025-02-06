@@ -1,6 +1,6 @@
 //базовый класс view модели для запросов за списком с пагинацией
 export abstract class PaginatedViewDto<T> {
-  abstract items: T;
+  abstract items: T[];
   totalCount: number;
   pagesCount: number;
   page: number;
@@ -8,16 +8,16 @@ export abstract class PaginatedViewDto<T> {
 
   //статический метод-утилита для мапинга
   public static mapToView<T>(data: {
-    items: T;
+    items: T[];
     page: number;
-    size: number;
+    pageSize: number;
     totalCount: number;
   }): PaginatedViewDto<T> {
     return {
       totalCount: data.totalCount,
-      pagesCount: Math.ceil(data.totalCount / data.size),
+      pagesCount: Math.ceil(data.totalCount / data.pageSize),
       page: data.page,
-      pageSize: data.size,
+      pageSize: data.pageSize,
       items: data.items,
     };
   }

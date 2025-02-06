@@ -23,15 +23,10 @@ export class UsersController {
     private usersService: UsersService,
   ) {}
 
-  @Get(':id')
-  async getById(@Param('id') id: string): Promise<UserViewDto> {
-    return this.usersQueryRepository.getByIdOrNotFoundFail(id);
-  }
-
   @Get()
   async getAll(
     @Query() query: GetUsersQueryParams,
-  ): Promise<PaginatedViewDto<UserViewDto[]>> {
+  ): Promise<PaginatedViewDto<UserViewDto>> {
     return this.usersQueryRepository.getAll(query);
   }
 
