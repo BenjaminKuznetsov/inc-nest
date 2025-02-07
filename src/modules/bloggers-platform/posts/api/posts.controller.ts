@@ -16,12 +16,15 @@ import { PostViewDto } from '../dto/post-view.dto';
 import { PostInputDto } from '../dto/post-input.dto';
 import { PostsService } from '../application/posts.service';
 import { PostsQueryRepo } from '../infra/post.query-repo';
+import { GetCommentsQueryParams } from '../../comments/dto/comments-query-params.dto';
+import { CommentsQueryRepo } from '../../comments/infra/comment.query-repo';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
     private readonly postsQueryRepo: PostsQueryRepo,
+    private readonly commentsQueryRepo: CommentsQueryRepo,
   ) {}
 
   @Get()
@@ -37,19 +40,16 @@ export class PostsController {
   }
 
   @Get(':postId/comments')
-  getPosts(@Param('postId') postId: string) {
-    return 'getComments';
+  async getPosts(@Param('postId') postId: string) {
+    await this.postsService.isPostExistOrThrowNotFound(postId);
+    const query = new GetCommentsQueryParams(postId);
+    return this.commentsQueryRepo.getAll(query);
   }
 
   @Post()
   async create(@Body() dto: PostInputDto): Promise<PostViewDto> {
     const postId = await this.postsService.create(dto);
     return this.postsQueryRepo.getById(postId);
-  }
-
-  @Post(':postId/comments')
-  createPost(@Param('postId') postId: string) {
-    return 'create comment';
   }
 
   @Put(':id')

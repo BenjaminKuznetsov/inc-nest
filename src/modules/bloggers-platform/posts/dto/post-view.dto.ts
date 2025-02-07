@@ -8,6 +8,16 @@ export class PostViewDto {
   blogId: string;
   blogName: string;
   createdAt: Date;
+  extendedLikesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+    myStatus: 'None';
+    newestLikes: Array<{
+      addedAt: Date;
+      userId: string;
+      login: string;
+    }>;
+  };
 
   static mapToView(post: PostDocument): PostViewDto {
     return {
@@ -18,6 +28,12 @@ export class PostViewDto {
       blogId: post.blogId.toString(),
       blogName: post.blogName,
       createdAt: post.createdAt,
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [],
+      },
     };
   }
 }

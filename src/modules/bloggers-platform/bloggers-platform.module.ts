@@ -10,13 +10,17 @@ import { PostsQueryRepo } from './posts/infra/post.query-repo';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs/domain/blog.entity';
 import { Post, PostSchema } from './posts/domain/post.entity';
+import { Comment, CommentSchema } from './comments/domain/comment.entity';
+import { CommentsController } from './comments/api/comments.controller';
+import { CommentsQueryRepo } from './comments/infra/comment.query-repo';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
+    MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
   ],
-  controllers: [BlogsController, PostsController],
+  controllers: [BlogsController, PostsController, CommentsController],
   providers: [
     BlogsService,
     BlogsRepo,
@@ -24,6 +28,7 @@ import { Post, PostSchema } from './posts/domain/post.entity';
     PostsService,
     PostsRepo,
     PostsQueryRepo,
+    CommentsQueryRepo,
   ],
 })
 export class BloggersPlatformModule {}

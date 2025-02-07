@@ -41,4 +41,11 @@ export class PostsService {
     post.makeDeleted();
     await this.postsRepo.save(post);
   }
+
+  async isPostExistOrThrowNotFound(id: string): Promise<void> {
+    const post = await this.PostModel.exists({ _id: id, deletedAt: null });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+  }
 }
