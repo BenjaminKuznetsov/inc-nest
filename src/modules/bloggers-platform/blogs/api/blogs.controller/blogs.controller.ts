@@ -43,6 +43,7 @@ export class BlogsController {
 
   @Get(':blogId/posts')
   async getPosts(@Param('blogId') blogId: string) {
+    // TODO спросить
     const query = new GetPostsQueryParams(blogId);
     return this.postsQueryRepo.getAll(query);
   }
