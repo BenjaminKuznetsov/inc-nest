@@ -48,7 +48,7 @@ $ yarn run start:prod
 ## Compile and run on server
 
 ```bash
-$ cd /var/www/inc-nest && git pull && yarn run start:dev
+$ cd /var/www/inc-nest && git pull && rm -rf dist && yarn run start:dev
 ```
 
 ## Run tests
