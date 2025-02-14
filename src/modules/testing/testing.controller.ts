@@ -8,7 +8,7 @@ export class TestingController {
   @Delete('all-data')
   @HttpCode(HttpStatus.NO_CONTENT)
   async dropDatabase() {
+    console.log('Dropping database...');
     await this.testingService.dropDatabase();
-    return;
   }
 }

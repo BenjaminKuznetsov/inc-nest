@@ -24,7 +24,8 @@ export class CommentsQueryRepo {
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())
       .limit(query.pageSize);
-    const totalCount = await this.CommentModel.countDocuments();
+
+    const totalCount = await this.CommentModel.countDocuments(filter);
 
     return PaginatedViewDto.mapToView({
       items: result.map((comment) => CommentViewDto.mapToView(comment)),

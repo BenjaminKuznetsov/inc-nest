@@ -33,6 +33,7 @@ export class BlogsController {
   getAll(
     @Query() query: GetBlogsQueryParams,
   ): Promise<PaginatedViewDto<BlogViewDto>> {
+    debugger;
     return this.blogsQueryRepo.getAll(query);
   }
 
@@ -42,9 +43,11 @@ export class BlogsController {
   }
 
   @Get(':blogId/posts')
-  async getPosts(@Param('blogId') blogId: string) {
-    // TODO спросить
-    const query = new GetPostsQueryParams(blogId);
+  async getPosts(
+    @Param('blogId') blogId: string,
+    @Query() query: GetPostsQueryParams,
+  ) {
+    query.blogId = blogId;
     return this.postsQueryRepo.getAll(query);
   }
 
@@ -70,6 +73,7 @@ export class BlogsController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   delete(@Param('id') id: string) {
     return this.blogsService.delete(id);
   }

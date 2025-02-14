@@ -59,6 +59,7 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   delete(@Param('id') id: string) {
     return this.postsService.delete(id);
   }

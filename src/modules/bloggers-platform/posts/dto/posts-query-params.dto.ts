@@ -8,13 +8,6 @@ enum PostsSortBy {
 
 // dto для запроса списка постов с пагинацией, сортировкой, фильтрами
 export class GetPostsQueryParams extends BaseSortablePaginationParams<PostsSortBy> {
-  constructor(blogId: string | null = null) {
-    super();
-    if (blogId) {
-      this.blogId = blogId;
-    }
-  }
-
   sortBy = PostsSortBy.CreatedAt;
   blogId: string | null = null;
 }

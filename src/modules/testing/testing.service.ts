@@ -13,7 +13,7 @@ export class TestingService {
 
     try {
       await this.connection.db.dropDatabase();
-      console.log('База данных успешно удалена');
+      // console.log('База данных успешно удалена');
     } catch (error) {
       console.error('Ошибка при удалении базы данных:', error);
       throw error;

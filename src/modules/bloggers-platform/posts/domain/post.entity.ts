@@ -44,7 +44,7 @@ export class Post {
    * Deletion timestamp, nullable, if date exist, means entity soft deleted
    * @type {Date | null}
    */
-  @Prop({ type: Date, nullable: true })
+  @Prop({ type: Date, default: null })
   deletedAt: Date | null;
 
   /**
@@ -89,7 +89,7 @@ export class Post {
    */
   makeDeleted() {
     if (this.deletedAt !== null) {
-      throw new Error('Entity already deleted');
+      throw new Error('Entity already deleted'); // TODO: replase with domain exception
     }
     this.deletedAt = new Date();
   }

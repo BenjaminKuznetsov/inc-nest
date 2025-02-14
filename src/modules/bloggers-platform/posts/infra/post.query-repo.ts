@@ -30,7 +30,9 @@ export class PostsQueryRepo {
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())
       .limit(query.pageSize);
-    const totalCount = await this.PostModel.countDocuments();
+
+    const totalCount = await this.PostModel.countDocuments(filter);
+
     return PaginatedViewDto.mapToView({
       items: result.map((blog) => PostViewDto.mapToView(blog)),
       totalCount,

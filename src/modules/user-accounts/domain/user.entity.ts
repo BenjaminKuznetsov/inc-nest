@@ -43,7 +43,7 @@ export class User {
 
   makeDeleted() {
     if (this.deletionStatus !== DeletionStatus.NotDeleted) {
-      throw new Error('Entity already deleted');
+      throw new Error('Entity already deleted'); // TODO: replase with domain exception
     }
     this.deletionStatus = DeletionStatus.PermanentDeleted;
   }
