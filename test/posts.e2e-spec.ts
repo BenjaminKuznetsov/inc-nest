@@ -214,6 +214,13 @@ describe('posts', () => {
     }
   });
 
+  it('should "/blogs/:blogId/posts": should return error if :id from uri param not found; status 404; ', async () => {
+    const notExistingId = new ObjectId().toHexString();
+    await request(app.getHttpServer())
+      .get(`${paths.blogs}/${notExistingId}/posts`)
+      .expect(HttpStatus.NOT_FOUND);
+  });
+
   // it("shouldn't update post, because user is not authorized", async () => {
   //   const id = new ObjectId().toString()
   //   const data = validPosts[0]
