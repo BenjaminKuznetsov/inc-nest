@@ -47,6 +47,7 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Query() query: GetPostsQueryParams,
   ) {
+    await this.blogsService.checkBlogExistOrThrowNotFound(blogId);
     query.blogId = blogId;
     return this.postsQueryRepo.getAll(query);
   }

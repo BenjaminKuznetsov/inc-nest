@@ -48,4 +48,12 @@ export class BlogsService {
     blog.makeDeleted();
     await this.blogsRepo.save(blog);
   }
+
+  async checkBlogExistOrThrowNotFound(id: string): Promise<void> {
+    const blog = await this.blogsRepo.findById(id);
+    // TODO: replace with domain exception
+    if (!blog) {
+      throw new NotFoundException('Blog not found');
+    }
+  }
 }
