@@ -15,6 +15,7 @@ import { appSetup } from '../src/setup/app.setup';
 
 describe('blogs', () => {
   let app: INestApplication<App>;
+  let httpServer: App;
 
   const dbBlogs: BlogViewDto[] = [];
 
@@ -27,13 +28,19 @@ describe('blogs', () => {
     appSetup(app);
     await app.init();
 
-    await request(app.getHttpServer())
+    httpServer = app.getHttpServer();
+
+    await request(httpServer)
       .delete(paths.testing)
       .expect(HttpStatus.NO_CONTENT);
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('should return status 200 with empty array of blogs ', async () => {
-    const response = await request(app.getHttpServer())
+    const response = await request(httpServer)
       .get(paths.blogs)
       .expect(HttpStatus.OK);
 
@@ -47,7 +54,7 @@ describe('blogs', () => {
 
   // it("shouldn't create blog, because user is not authorized", async () => {
   //   const data = validBlogs[0];
-  //   await request(app.getHttpServer())
+  //   await request(httpServer)
   //     .post(paths.blogs)
   //     .send(data)
   //     .expect(HttpStatus.UNAUTHORIZED);
@@ -55,7 +62,7 @@ describe('blogs', () => {
 
   // it("shouldn't create blog with incorrect auth credentials", async () => {
   //   const newBlog = validBlogs[0];
-  //   await request(app.getHttpServer())
+  //   await request(httpServer)
   //     .post(paths.blogs)
   //     .set('Authorization', 'Basic qwerty:qwerty')
   //     .send(newBlog)
@@ -64,7 +71,7 @@ describe('blogs', () => {
 
   // it("shouldn't create blog with incorrect input data", async () => {
   //   for (const data of invalidBlogs) {
-  //     await request(app.getHttpServer())
+  //     await request(httpServer)
   //       .post(paths.blogs)
   //       // .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
   //       .send(data)
@@ -74,7 +81,7 @@ describe('blogs', () => {
 
   it('should create some blogs and then find it by id', async () => {
     for (const data of validBlogs) {
-      const response1 = await request(app.getHttpServer())
+      const response1 = await request(httpServer)
         .post(paths.blogs)
         // .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
         .send(data)
@@ -88,7 +95,7 @@ describe('blogs', () => {
       expect(isValidIsoDate(createdBlog.createdAt)).toBe(true);
       expect(createdBlog.isMembership).toBe(false);
 
-      const response2 = await request(app.getHttpServer())
+      const response2 = await request(httpServer)
         .get(`${paths.blogs}/${createdBlog.id}`)
         .expect(HttpStatus.OK);
       const foundBlog = response2.body;
@@ -100,13 +107,13 @@ describe('blogs', () => {
 
   it("shouldn't find blog with non-existent id", async () => {
     const id = new ObjectId().toString();
-    await request(app.getHttpServer())
+    await request(httpServer)
       .get(`${paths.blogs}/${id}`)
       .expect(HttpStatus.NOT_FOUND);
   });
 
   it('should return all blogs', async () => {
-    const response = await request(app.getHttpServer())
+    const response = await request(httpServer)
       .get(paths.blogs)
       .expect(HttpStatus.OK);
 
@@ -121,7 +128,7 @@ describe('blogs', () => {
   // it("shouldn't update blog, because user is not authorized", async () => {
   //   const blogId = dbBlogs[0].id;
   //   const data = validBlogs[5];
-  //   await request(app.getHttpServer())
+  //   await request(httpServer)
   //     .put(`${paths.blogs}/${blogId}`)
   //     .send(data)
   //     .expect(HttpStatus.UNAUTHORIZED);
@@ -130,7 +137,7 @@ describe('blogs', () => {
   // it("shouldn't update blog with incorrect input data", async () => {
   //   for (const data of invalidBlogs) {
   //     const blogId = dbBlogs[0].id;
-  //     const response = await request(app.getHttpServer())
+  //     const response = await request(httpServer)
   //       .put(`${paths.blogs}/${blogId}`)
   //       // .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
   //       .send(data)
@@ -142,7 +149,7 @@ describe('blogs', () => {
   it("shouldn't update blog with non-existent id", async () => {
     const blogId = new ObjectId().toString();
     const data = validBlogs[0];
-    await request(app.getHttpServer())
+    await request(httpServer)
       .put(`${paths.blogs}/${blogId}`)
       // .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
       .send(data)
@@ -152,13 +159,13 @@ describe('blogs', () => {
   it('should update blog with correct data', async () => {
     const blogId = dbBlogs[0].id;
     const data = validBlogs[0];
-    await request(app.getHttpServer())
+    await request(httpServer)
       .put(`${paths.blogs}/${blogId}`)
       // .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
       .send(data)
       .expect(HttpStatus.NO_CONTENT);
 
-    const response = await request(app.getHttpServer())
+    const response = await request(httpServer)
       .get(`${paths.blogs}/${blogId}`)
       .expect(HttpStatus.OK);
     const updatedBlog = response.body;
@@ -171,14 +178,14 @@ describe('blogs', () => {
 
   // it("shouldn't delete blog, because user is not authorized", async () => {
   //   const blogId = dbBlogs[0].id;
-  //   await request(app.getHttpServer())
+  //   await request(httpServer)
   //     .delete(`${paths.blogs}/${blogId}`)
   //     .expect(HttpStatus.UNAUTHORIZED);
   // });
 
   it("shouldn't delete blog with non-existent id", async () => {
     const blogId = new ObjectId().toString();
-    await request(app.getHttpServer())
+    await request(httpServer)
       .delete(`${paths.blogs}/${blogId}`)
       // .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
       .expect(HttpStatus.NOT_FOUND);
@@ -186,12 +193,12 @@ describe('blogs', () => {
 
   it('should delete blog with correct id', async () => {
     const blogId = dbBlogs[0].id;
-    await request(app.getHttpServer())
+    await request(httpServer)
       .delete(`${paths.blogs}/${blogId}`)
       // .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
       .expect(HttpStatus.NO_CONTENT);
 
-    const response = await request(app.getHttpServer())
+    const response = await request(httpServer)
       .get(paths.blogs)
       .expect(HttpStatus.OK);
     console.log('response.body', response.body);

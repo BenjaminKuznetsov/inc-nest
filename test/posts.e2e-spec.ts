@@ -34,6 +34,10 @@ describe('posts', () => {
       .expect(HttpStatus.NO_CONTENT);
   });
 
+  afterAll(async () => {
+    await app.close();
+  });
+
   it('should seed blogs', async () => {
     for (const data of validBlogs) {
       const response1 = await request(app.getHttpServer())

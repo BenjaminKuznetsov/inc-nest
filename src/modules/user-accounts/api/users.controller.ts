@@ -1,22 +1,14 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
 import { UsersQueryRepository } from '../infrastructure/users.query-repository';
 import { UserViewDto } from './view-dto/user.view-dto';
 import { CreateUserInputDto } from './input-dto/users.input-dto';
 import { GetUsersQueryParams } from './get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
+import { BasicAuthGuard } from './guards/basic-auth.guard';
 
 @Controller('users')
+@UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private usersQueryRepository: UsersQueryRepository,
@@ -24,9 +16,7 @@ export class UsersController {
   ) {}
 
   @Get()
-  async getAll(
-    @Query() query: GetUsersQueryParams,
-  ): Promise<PaginatedViewDto<UserViewDto>> {
+  async getAll(@Query() query: GetUsersQueryParams): Promise<PaginatedViewDto<UserViewDto>> {
     return this.usersQueryRepository.getAll(query);
   }
 
