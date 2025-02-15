@@ -78,5 +78,4 @@ export class BlogsController {
   delete(@Param('id') id: string) {
     return this.blogsService.delete(id);
   }
-  //
 }
