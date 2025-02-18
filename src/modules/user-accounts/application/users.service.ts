@@ -1,15 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserModelType } from '../domain/user.entity';
+import { User, UserDocument, UserModelType } from '../domain/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import bcrypt from 'bcrypt';
-import { UsersRepository } from '../infrastructure/users.repository';
+import { UsersRepo } from '../infrastructure/usersRepo';
+
+type UserExample = {
+  userId: number;
+  username: string;
+  password: string;
+};
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private UserModel: UserModelType,
-    private usersRepository: UsersRepository,
+    private usersRepository: UsersRepo,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<string> {
@@ -30,5 +36,9 @@ export class UsersService {
     const user = await this.usersRepository.findOrNotFoundFail(id);
     user.makeDeleted();
     await this.usersRepository.save(user);
+  }
+
+  async findById(id: string): Promise<UserDocument | null> {
+    return this.usersRepository.findById(id);
   }
 }

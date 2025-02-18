@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
-import { UsersQueryRepository } from '../infrastructure/users.query-repository';
+import { UsersQueryRepo } from '../infrastructure/users-query.repo';
 import { UserViewDto } from './view-dto/user.view-dto';
 import { CreateUserInputDto } from './input-dto/users.input-dto';
 import { GetUsersQueryParams } from './get-users-query-params.input-dto';
@@ -11,7 +11,7 @@ import { BasicAuthGuard } from './guards/basic-auth.guard';
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
-    private usersQueryRepository: UsersQueryRepository,
+    private usersQueryRepository: UsersQueryRepo,
     private usersService: UsersService,
   ) {}
 

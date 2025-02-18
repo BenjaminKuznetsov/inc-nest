@@ -7,6 +7,8 @@ export function pipeSetup(app: INestApplication) {
       //соответственно применятся значения по-умолчанию
       //и методы классов dto
       transform: true,
+      // удаляет поля, которых нет в dto
+      whitelist: true,
     }),
   );
 }

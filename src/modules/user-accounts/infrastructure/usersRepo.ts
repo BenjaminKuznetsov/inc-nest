@@ -1,13 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  DeletionStatus,
-  User,
-  UserDocument,
-  UserModelType,
-} from '../domain/user.entity';
+import { DeletionStatus, User, UserDocument, UserModelType } from '../domain/user.entity';
 import { NotFoundException } from '@nestjs/common';
 
-export class UsersRepository {
+export class UsersRepo {
   //инжектирование модели через DI
   constructor(@InjectModel(User.name) private UserModel: UserModelType) {}
 
@@ -31,5 +26,15 @@ export class UsersRepository {
     }
 
     return user;
+  }
+
+  async getByLoginOrEmail(loginOrEmail: string): Promise<UserDocument | null> {
+    let foundUser: UserDocument | null;
+    if (loginOrEmail.includes('@')) {
+      foundUser = await this.UserModel.findOne({ email: loginOrEmail });
+    } else {
+      foundUser = await this.UserModel.findOne({ login: loginOrEmail });
+    }
+    return foundUser as UserDocument | null;
   }
 }
