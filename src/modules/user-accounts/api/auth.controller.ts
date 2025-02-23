@@ -3,7 +3,7 @@ import { paths } from '../../../common/paths';
 import { AuthService } from '../application/auth.service';
 import { UserId } from '../../../core/decorators/userId';
 import { UsersQueryRepo } from '../infrastructure/users-query.repo';
-import { BearerAuthGuard } from './guards/bearer-auth.guard';
+import { BearerAuthGuard } from '../../../core/guards/bearer-auth.guard';
 import { LoginInputDto } from './input-dto/login.input-dto';
 import { MeViewDto } from './view-dto/me.view-dto';
 import { LoginViewDto } from './view-dto/login.view-dto';

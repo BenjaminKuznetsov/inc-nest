@@ -5,7 +5,7 @@ import { UserViewDto } from './view-dto/user.view-dto';
 import { CreateUserInputDto } from './input-dto/users.input-dto';
 import { GetUsersQueryParams } from './get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
-import { BasicAuthGuard } from './guards/basic-auth.guard';
+import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';
 
 @Controller('users')
 @UseGuards(BasicAuthGuard)

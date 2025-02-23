@@ -8,7 +8,7 @@ export function pipeSetup(app: INestApplication) {
       //и методы классов dto
       transform: true,
       // удаляет поля, которых нет в dto
-      whitelist: true,
+      // whitelist: true,
 
       // форматирование ошибок в нужный тип
       exceptionFactory: (errors) => {

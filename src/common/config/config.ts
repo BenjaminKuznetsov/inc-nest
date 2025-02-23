@@ -4,7 +4,7 @@ export const appConfig = {
   // dbName: /*process.env.DB_NAME || */ 'homework-dev',
   // testDbName: /*process.env.TEST_DB_NAME ||*/ 'homework-test',
   jwtSecret: /*process.env.JWT_SECRET ||*/ 'secret',
-  // adminAuth: 'admin:qwerty',
+  adminAuth: 'admin:qwerty',
   mailService: 'Mail.ru',
   mailRuAddress: 'benjamin.study@mail.ru',
   mailRuPass: /*process.env.MAIL_RU_PASS ||*/ 'vLiWeFy4ggX9fePd5k4h',
