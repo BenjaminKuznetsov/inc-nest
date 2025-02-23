@@ -11,13 +11,20 @@ import { JwtModule } from '@nestjs/jwt';
 import { appConfig } from '../../common/config/config';
 import { JwtService } from './application/jwt.service';
 import { CryptoService } from './application/crypto.service';
+import { Session, SessionSchema } from './domain/session.entity';
+import { SessionsRepo } from './infrastructure/sessions-repo';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Session.name, schema: SessionSchema },
+    ]),
     JwtModule.register({ secret: appConfig.jwtSecret }),
+    NotificationsModule,
   ],
   controllers: [UsersController, AuthController],
-  providers: [UsersService, UsersRepo, UsersQueryRepo, AuthService, JwtService, CryptoService],
+  providers: [UsersService, UsersRepo, UsersQueryRepo, AuthService, JwtService, CryptoService, SessionsRepo],
 })
 export class UserAccountsModule {}

@@ -7,6 +7,44 @@ export enum DeletionStatus {
   PermanentDeleted = 'permanent-deleted',
 }
 
+export enum ConfirmationStatus {
+  CREATED_BY_ADMIN = 0,
+  NOT_CONFIRMED = 1,
+  CONFIRMED = 2,
+}
+
+@Schema({
+  _id: false,
+  timestamps: true,
+})
+class EmailConfirmation {
+  @Prop({ type: String }) // not required if created by admin
+  confirmationCode: string;
+
+  @Prop({ type: Date }) // not required if created by admin
+  expirationDate: Date;
+
+  @Prop({ type: Number, enum: ConfirmationStatus, required: true })
+  confirmationStatus: ConfirmationStatus;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const EmailConfirmationSchema = SchemaFactory.createForClass(EmailConfirmation);
+
+@Schema({
+  _id: false,
+  timestamps: true,
+})
+class PasswordRecovery {
+  @Prop({ type: String, required: true })
+  recoveryCode: string;
+
+  @Prop({ type: Date, required: true })
+  expirationDate: Date;
+}
+
 //флаг timestemp автоматичеки добавляет поля upatedAt и createdAt
 @Schema({ timestamps: true })
 export class User {
@@ -18,6 +56,12 @@ export class User {
 
   @Prop({ type: String, required: true })
   email: string;
+
+  @Prop({ type: EmailConfirmationSchema })
+  emailConfirmation: EmailConfirmation;
+
+  @Prop({ type: PasswordRecovery, default: null })
+  passwordRecovery: PasswordRecovery | null;
 
   @Prop({ enum: DeletionStatus, default: DeletionStatus.NotDeleted })
   deletionStatus: DeletionStatus;

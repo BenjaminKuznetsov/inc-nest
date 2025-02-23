@@ -1,4 +1,4 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
 
 export function pipeSetup(app: INestApplication) {
   app.useGlobalPipes(
@@ -9,6 +9,18 @@ export function pipeSetup(app: INestApplication) {
       transform: true,
       // удаляет поля, которых нет в dto
       whitelist: true,
+
+      // форматирование ошибок в нужный тип
+      exceptionFactory: (errors) => {
+        const formattedErrors = errors.map((err) => ({
+          field: err.property,
+          message: Object.values(err.constraints || {})[0],
+        }));
+
+        return new BadRequestException({
+          errorsMessages: formattedErrors,
+        });
+      },
     }),
   );
 }

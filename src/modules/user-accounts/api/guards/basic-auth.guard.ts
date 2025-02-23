@@ -11,14 +11,12 @@ export class BasicAuthGuard implements CanActivate {
 
     const receivedToken = request.headers.authorization;
     if (!receivedToken) {
-      // TODO: replace with domain exception
       throw new UnauthorizedException();
     }
 
     const etalonToken = 'Basic ' + encodeToBase64(`${this.validUsername}:${this.validPassword}`);
 
     if (receivedToken !== etalonToken) {
-      // TODO: replace with domain exception
       throw new UnauthorizedException();
     }
 

@@ -4,6 +4,7 @@ import { User, UserDocument, UserModelType } from '../domain/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import bcrypt from 'bcrypt';
 import { UsersRepo } from '../infrastructure/usersRepo';
+import { CryptoService } from './crypto.service';
 
 type UserExample = {
   userId: number;
@@ -16,11 +17,11 @@ export class UsersService {
   constructor(
     @InjectModel(User.name) private UserModel: UserModelType,
     private usersRepository: UsersRepo,
+    private readonly cryptoService: CryptoService,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<string> {
-    //TODO: move to brypt service
-    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const passwordHash = await this.cryptoService.generateHash(dto.password);
 
     const user = this.UserModel.createInstance({
       email: dto.email,

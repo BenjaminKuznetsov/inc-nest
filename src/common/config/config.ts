@@ -5,14 +5,14 @@ export const appConfig = {
   // testDbName: /*process.env.TEST_DB_NAME ||*/ 'homework-test',
   jwtSecret: /*process.env.JWT_SECRET ||*/ 'secret',
   // adminAuth: 'admin:qwerty',
-  // mailService: 'Mail.ru',
-  // mailRuAddress: 'benjamin.study@mail.ru',
-  // mailRuPass: /*process.env.MAIL_RU_PASS ||*/ 'mailRuPass',
+  mailService: 'Mail.ru',
+  mailRuAddress: 'benjamin.study@mail.ru',
+  mailRuPass: /*process.env.MAIL_RU_PASS ||*/ 'vLiWeFy4ggX9fePd5k4h',
   accessTokenExp: '1h',
   refreshTokenExp: '1d',
-  // cookieNames: {
-  //   refreshToken: 'refreshToken',
-  // },
+  cookieNames: {
+    refreshToken: 'refreshToken',
+  },
   // tooManyRequestsParams: {
   //   count: 5, // не более 5 запросов
   //   time: 10, // за 10 секунд

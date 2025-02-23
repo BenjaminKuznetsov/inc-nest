@@ -15,15 +15,14 @@ export class JwtService {
     return this.jwt.signAsync({ userId, deviceId }, { expiresIn: appConfig.refreshTokenExp });
   }
 
-  async decodeToken(token: string): Promise<object | null> {
-    return this.jwt.decode(token) as object | null;
+  async decodeRefreshToken(token: string): Promise<RefreshTokenPayload> {
+    return this.jwt.decode(token);
   }
 
   async verifyAccessToken(token: string): Promise<AccessTokenPayload> {
     try {
       return this.jwt.verifyAsync<AccessTokenPayload>(token);
     } catch (e) {
-      // TODO: replace with domain exception
       throw new UnauthorizedException();
     }
   }
@@ -32,7 +31,6 @@ export class JwtService {
     try {
       return this.jwt.verifyAsync<RefreshTokenPayload>(token);
     } catch (e) {
-      // TODO: replace with domain exception
       throw new UnauthorizedException();
     }
   }

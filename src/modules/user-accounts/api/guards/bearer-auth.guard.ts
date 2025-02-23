@@ -26,14 +26,12 @@ export class BearerAuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(req);
     if (!token) {
-      // TODO: replace with domain exception
       throw new UnauthorizedException();
     }
 
     const payload = await this.jwtService.verifyAccessToken(token);
     const user = await this.usersService.findById(payload.userId);
     if (!user) {
-      // TODO: replace with domain exception
       throw new UnauthorizedException();
     }
 

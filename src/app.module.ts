@@ -6,6 +6,7 @@ import { UserAccountsModule } from './modules/user-accounts/user-accounts.module
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
 import { TestingModule } from './modules/testing/testing.module';
 import { LoggerMiddleware } from './common/middleware/logger';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { LoggerMiddleware } from './common/middleware/logger';
     UserAccountsModule,
     BloggersPlatformModule,
     TestingModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
