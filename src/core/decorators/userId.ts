@@ -4,11 +4,12 @@ import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@
 export const UserId = createParamDecorator((data: unknown, context: ExecutionContext): string => {
   const request = context.switchToHttp().getRequest();
 
-  const userId = request.userCtx?.userId;
+  const userId = request.user.userId;
 
-  if (!userId) {
-    throw new UnauthorizedException();
-  }
+  // TODO: тут наверное не нужно бросать исключение
+  // if (!userId) {
+  //   throw new UnauthorizedException();
+  // }
 
   return userId;
 });

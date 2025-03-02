@@ -42,7 +42,10 @@ export class AuthController {
       userAgent,
     });
 
-    res.cookie(appConfig.cookieNames.refreshToken, result.refreshToken, { httpOnly: true, secure: true });
+    // TODO: устанавливать куки по-нормальному
+    res
+      .cookie(appConfig.cookieNames.refreshToken, result.refreshToken, { httpOnly: true, secure: true })
+      .json({ accessToken: result.accessToken });
     return { accessToken: result.accessToken };
   }
 

@@ -1,18 +1,18 @@
 import request from 'supertest';
-import { invalidPosts, validBlogs, validPosts } from './helpers/mock-data';
+import { invalidPosts, validBlogs, validPosts } from '../helpers/mock-data';
 import { ObjectId } from 'mongodb';
 import __ from 'lodash';
-import { isValidIsoDate } from './helpers/utils';
+import { isValidIsoDate } from '../helpers/utils';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
-import { appSetup } from '../src/setup/app.setup';
+import { AppModule } from '../../src/app.module';
+import { appSetup } from '../../src/setup/app.setup';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
-import { paths } from '../src/common/paths';
-import { BlogViewDto } from '../src/modules/bloggers-platform/blogs/dto/blog-view.dto';
-import { PostViewDto } from '../src/modules/bloggers-platform/posts/dto/post-view.dto';
-import { appConfig } from '../src/common/config/config';
-import { encodeToBase64 } from '../src/core/utils/base-64';
+import { paths } from '../../src/common/paths';
+import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/dto/blog-view.dto';
+import { PostViewDto } from '../../src/modules/bloggers-platform/posts/dto/post-view.dto';
+import { appConfig } from '../../src/common/config/config';
+import { encodeToBase64 } from '../../src/core/utils/base-64';
 
 const ADMIN_AUTH = appConfig.adminAuth;
 

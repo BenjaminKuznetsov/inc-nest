@@ -6,6 +6,7 @@ import { CreateUserInputDto } from './input-dto/users.input-dto';
 import { GetUsersQueryParams } from './get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
 import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';
+import { ValidateObjectIdPipe } from '../../../core/pipes/validate-object-id.pipe';
 
 @Controller('users')
 @UseGuards(BasicAuthGuard)
@@ -29,7 +30,7 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUser(@Param('id') id: string): Promise<void> {
+  async deleteUser(@Param('id', ValidateObjectIdPipe) id: string): Promise<void> {
     return this.usersService.deleteUser(id);
   }
 }

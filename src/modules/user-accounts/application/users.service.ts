@@ -2,15 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument, UserModelType } from '../domain/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
-import bcrypt from 'bcrypt';
 import { UsersRepo } from '../infrastructure/usersRepo';
 import { CryptoService } from './crypto.service';
-
-type UserExample = {
-  userId: number;
-  username: string;
-  password: string;
-};
+import { CustomBadRequestException } from '../../../common/exception/bad-request';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +15,16 @@ export class UsersService {
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<string> {
+    const userWithSuchLogin = await this.usersRepository.getUserByFilter({ login: dto.login });
+    if (userWithSuchLogin) {
+      throw new CustomBadRequestException({ field: 'login', message: 'User with such login already exists' });
+    }
+
+    const userWithSuchEmail = await this.usersRepository.getUserByFilter({ email: dto.email });
+    if (userWithSuchEmail) {
+      throw new CustomBadRequestException({ field: 'email', message: 'User with such email already exists' });
+    }
+
     const passwordHash = await this.cryptoService.generateHash(dto.password);
 
     const user = this.UserModel.createInstance({

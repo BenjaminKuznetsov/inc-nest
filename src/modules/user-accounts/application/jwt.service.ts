@@ -21,7 +21,7 @@ export class JwtService {
 
   async verifyAccessToken(token: string): Promise<AccessTokenPayload> {
     try {
-      return this.jwt.verifyAsync<AccessTokenPayload>(token);
+      return await this.jwt.verifyAsync<AccessTokenPayload>(token);
     } catch (e) {
       throw new UnauthorizedException();
     }
@@ -29,7 +29,7 @@ export class JwtService {
 
   async verifyRefreshToken(token: string): Promise<RefreshTokenPayload> {
     try {
-      return this.jwt.verifyAsync<RefreshTokenPayload>(token);
+      return await this.jwt.verifyAsync<RefreshTokenPayload>(token);
     } catch (e) {
       throw new UnauthorizedException();
     }

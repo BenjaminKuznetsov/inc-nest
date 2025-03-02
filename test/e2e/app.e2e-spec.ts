@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
-import { appSetup } from '../src/setup/app.setup';
+import { AppModule } from '../../src/app.module';
+import { appSetup } from '../../src/setup/app.setup';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
@@ -23,9 +23,6 @@ describe('AppController (e2e)', () => {
   });
 
   it('/api/hello (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/api/hello')
-      .expect(200)
-      .expect('Hello World!');
+    return request(app.getHttpServer()).get('/api/hello').expect(200).expect('Hello World!');
   });
 });
