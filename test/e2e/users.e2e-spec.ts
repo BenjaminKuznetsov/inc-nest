@@ -45,6 +45,10 @@ describe('users', () => {
       .expect(HttpStatus.UNAUTHORIZED);
   });
 
+  it("shouldn't create user without authorization with empty dto", async () => {
+    await request(httpServer).post(paths.users).send({}).expect(HttpStatus.UNAUTHORIZED);
+  });
+
   it("shouldn't create user with incorrect input data", async () => {
     const data1: CreateUserInputDto = {
       email: 'user1_user1.com',
