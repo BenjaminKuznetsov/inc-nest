@@ -1,6 +1,8 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { CreateUserDto, CreateUserOptions } from '../dto/create-user.dto';
+import { randomUUID } from 'node:crypto';
+import { add } from 'date-fns';
 
 export enum DeletionStatus {
   NotDeleted = 'not-deleted',
@@ -57,7 +59,7 @@ export class User {
   @Prop({ type: String, required: true })
   email: string;
 
-  @Prop({ type: EmailConfirmationSchema })
+  @Prop({ type: EmailConfirmationSchema, required: true })
   emailConfirmation: EmailConfirmation;
 
   @Prop({ type: PasswordRecovery, default: null })
@@ -75,12 +77,27 @@ export class User {
   createdAt: Date;
   updatedAt: Date;
 
-  static createInstance(dto: CreateUserDto): UserDocument {
+  static createInstance(dto: CreateUserDto, options: CreateUserOptions): UserDocument {
     //userDocument!
     const user = new this(); //UserModel!
     user.email = dto.email;
     user.passwordHash = dto.password;
     user.login = dto.login;
+
+    const emailConfirmation = options.isCreatedByAdmin
+      ? {
+          confirmationStatus: ConfirmationStatus.CREATED_BY_ADMIN,
+        }
+      : {
+          confirmationStatus: ConfirmationStatus.NOT_CONFIRMED,
+          confirmationCode: randomUUID(),
+          expirationDate: add(new Date(), {
+            hours: 1,
+            minutes: 30,
+          }),
+        };
+
+    user.emailConfirmation = emailConfirmation as EmailConfirmation;
 
     return user as UserDocument;
   }
