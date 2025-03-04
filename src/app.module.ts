@@ -10,7 +10,10 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/nest-blogger-platform'),
+    // MongooseModule.forRoot('mongodb://localhost/nest-blogger-platform'),
+    MongooseModule.forRoot(
+      'mongodb+srv://admin:admin@inc-nest.6mf1q.mongodb.net/inc-nest?retryWrites=true&w=majority&appName=inc-nest',
+    ),
     UserAccountsModule,
     BloggersPlatformModule,
     TestingModule,
