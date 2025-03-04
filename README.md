@@ -51,6 +51,12 @@ $ yarn run start:prod
 $ cd /var/www/inc-nest && git pull && rm -rf dist && yarn run start:dev
 ```
 
+## Build on Vercel
+
+```bash
+$ vercel --prod --force
+```
+
 ## Run tests
 
 ```bash
