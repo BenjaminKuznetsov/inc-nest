@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { GetPostsQueryParams } from '../dto/posts-query-params.dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
@@ -18,6 +19,7 @@ import { PostsService } from '../application/posts.service';
 import { PostsQueryRepo } from '../infra/post.query-repo';
 import { GetCommentsQueryParams } from '../../comments/dto/comments-query-params.dto';
 import { CommentsQueryRepo } from '../../comments/infra/comment.query-repo';
+import { BasicAuthGuard } from '../../../../core/guards/basic-auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -28,9 +30,7 @@ export class PostsController {
   ) {}
 
   @Get()
-  getAll(
-    @Query() query: GetPostsQueryParams,
-  ): Promise<PaginatedViewDto<PostViewDto>> {
+  getAll(@Query() query: GetPostsQueryParams): Promise<PaginatedViewDto<PostViewDto>> {
     return this.postsQueryRepo.getAll(query);
   }
 
@@ -47,18 +47,21 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(BasicAuthGuard)
   async create(@Body() dto: PostInputDto): Promise<PostViewDto> {
     const postId = await this.postsService.create(dto);
     return this.postsQueryRepo.getById(postId);
   }
 
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   update(@Param('id') id: string, @Body() dto: PostInputDto) {
     return this.postsService.update(id, dto);
   }
 
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   delete(@Param('id') id: string) {
     return this.postsService.delete(id);

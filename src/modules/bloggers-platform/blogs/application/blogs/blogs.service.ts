@@ -51,7 +51,7 @@ export class BlogsService {
 
   async checkBlogExistOrThrowNotFound(id: string): Promise<void> {
     const blog = await this.blogsRepo.findById(id);
-    // TODO: replace with domain exception
+
     if (!blog) {
       throw new NotFoundException('Blog not found');
     }
