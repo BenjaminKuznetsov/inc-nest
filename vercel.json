@@ -11,5 +11,10 @@
       "src": "/(.*)",
       "dest": "dist/main.js"
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "VERCEL_REBUILD": "1"
+    }
+  }
 }
