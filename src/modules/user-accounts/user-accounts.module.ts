@@ -14,6 +14,7 @@ import { CryptoService } from './application/crypto.service';
 import { Session, SessionSchema } from './domain/session.entity';
 import { SessionsRepo } from './infrastructure/sessions-repo';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { UserAccountsConfig } from './config/user-accounts.config';
 
 @Module({
   imports: [
@@ -25,6 +26,15 @@ import { NotificationsModule } from '../notifications/notifications.module';
     NotificationsModule,
   ],
   controllers: [UsersController, AuthController],
-  providers: [UsersService, UsersRepo, UsersQueryRepo, AuthService, JwtService, CryptoService, SessionsRepo],
+  providers: [
+    UserAccountsConfig,
+    UsersService,
+    UsersRepo,
+    UsersQueryRepo,
+    AuthService,
+    JwtService,
+    CryptoService,
+    SessionsRepo,
+  ],
 })
 export class UserAccountsModule {}
