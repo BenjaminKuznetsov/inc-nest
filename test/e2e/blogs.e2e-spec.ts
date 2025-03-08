@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { paths } from '../../src/common/paths';
-import { validBlogs, invalidBlogs } from '../helpers/mock-data';
+import { invalidBlogs, validBlogs } from '../helpers/mock-data';
 import { ObjectId } from 'mongodb';
 import { isValidIsoDate } from '../helpers/utils';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -9,23 +9,24 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/dto/blog-view.dto';
 import { appSetup } from '../../src/setup/app.setup';
-import { appConfig } from '../../src/common/config/config';
 import { encodeToBase64 } from '../../src/core/utils/base-64';
-
-const ADMIN_AUTH = appConfig.adminAuth;
+import { CoreConfig } from '../../src/core/core.config';
 
 describe('blogs', () => {
   let app: INestApplication<App>;
   let httpServer: App;
+  let config: CoreConfig;
 
   const dbBlogs: BlogViewDto[] = [];
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    config = moduleRef.get(CoreConfig);
+
+    app = moduleRef.createNestApplication();
     appSetup(app);
     await app.init();
 
@@ -69,7 +70,7 @@ describe('blogs', () => {
     for (const data of invalidBlogs) {
       await request(httpServer)
         .post(paths.blogs)
-        .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send(data)
         .expect(HttpStatus.BAD_REQUEST);
     }
@@ -79,7 +80,7 @@ describe('blogs', () => {
     for (const data of validBlogs) {
       const response1 = await request(httpServer)
         .post(paths.blogs)
-        .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send(data)
         .expect(HttpStatus.CREATED);
 
@@ -126,7 +127,7 @@ describe('blogs', () => {
       const blogId = dbBlogs[0].id;
       const response = await request(httpServer)
         .put(`${paths.blogs}/${blogId}`)
-        .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send(data)
         .expect(HttpStatus.BAD_REQUEST);
       // console.log(JSON.stringify(response.body, null, 2))
@@ -138,7 +139,7 @@ describe('blogs', () => {
     const data = validBlogs[0];
     await request(httpServer)
       .put(`${paths.blogs}/${blogId}`)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(data)
       .expect(HttpStatus.NOT_FOUND);
   });
@@ -148,7 +149,7 @@ describe('blogs', () => {
     const data = validBlogs[0];
     await request(httpServer)
       .put(`${paths.blogs}/${blogId}`)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(data)
       .expect(HttpStatus.NO_CONTENT);
 
@@ -170,7 +171,7 @@ describe('blogs', () => {
     const blogId = new ObjectId().toString();
     await request(httpServer)
       .delete(`${paths.blogs}/${blogId}`)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .expect(HttpStatus.NOT_FOUND);
   });
 
@@ -178,7 +179,7 @@ describe('blogs', () => {
     const blogId = dbBlogs[0].id;
     await request(httpServer)
       .delete(`${paths.blogs}/${blogId}`)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .expect(HttpStatus.NO_CONTENT);
 
     const response = await request(httpServer).get(paths.blogs).expect(HttpStatus.OK);

@@ -6,17 +6,21 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { appSetup } from '../../src/setup/app.setup';
 import { paths } from '../../src/common/paths';
+import { CoreConfig } from '../../src/core/core.config';
 
 describe('auth', () => {
   let app: INestApplication<App>;
   let httpServer: App;
+  let config: CoreConfig;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    config = moduleRef.get(CoreConfig);
+
+    app = moduleRef.createNestApplication();
     appSetup(app);
     await app.init();
     httpServer = app.getHttpServer();
@@ -31,7 +35,7 @@ describe('auth', () => {
 
     beforeAll(async () => {
       await request(httpServer).delete(paths.testing).expect(HttpStatus.NO_CONTENT);
-      const users = await e2eSeeder.users(httpServer, 1);
+      const users = await e2eSeeder.users(httpServer, 1, config);
       user = users[0];
     });
 
@@ -109,7 +113,7 @@ describe('auth', () => {
     });
 
     it('POST -> "auth/password-recovery": should send email with recovery code; status 204', async () => {
-      const user = await e2eSeeder.createAndLoginUser(httpServer);
+      const user = await e2eSeeder.createAndLoginUser(httpServer, config);
 
       request(httpServer).post(paths.auth.passwordRecovery).send({ email: user.email }).expect(HttpStatus.NO_CONTENT);
     });

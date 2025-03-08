@@ -8,18 +8,21 @@ import { paths } from '../../src/common/paths';
 import { mockUsers } from '../helpers/mock-data';
 import { CreateUserInputDto } from '../../src/modules/user-accounts/api/input-dto/users.input-dto';
 import { encodeToBase64 } from '../../src/core/utils/base-64';
-import { appConfig } from '../../src/common/config/config';
+import { CoreConfig } from '../../src/core/core.config';
 
 describe('users', () => {
   let app: INestApplication<App>;
   let httpServer: App;
+  let config: CoreConfig;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    config = moduleRef.get(CoreConfig);
+
+    app = moduleRef.createNestApplication();
     appSetup(app);
     await app.init();
     httpServer = app.getHttpServer();
@@ -63,13 +66,13 @@ describe('users', () => {
 
     const res1 = await request(httpServer)
       .post(paths.users)
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(data1)
       .expect(HttpStatus.BAD_REQUEST);
 
     const res2 = await request(httpServer)
       .post(paths.users)
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(data2)
       .expect(HttpStatus.BAD_REQUEST);
 
@@ -95,7 +98,7 @@ describe('users', () => {
 
     const res = await request(httpServer)
       .post(paths.users)
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(data)
       .expect(HttpStatus.CREATED);
 
@@ -120,7 +123,7 @@ describe('users', () => {
 
     const res1 = await request(httpServer)
       .post(paths.users)
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(repeatLoginUser)
       .expect(HttpStatus.BAD_REQUEST);
 
@@ -135,7 +138,7 @@ describe('users', () => {
 
     const res2 = await request(httpServer)
       .post(paths.users)
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(repeatEmailUser)
       .expect(HttpStatus.BAD_REQUEST);
 
@@ -153,7 +156,7 @@ describe('users', () => {
     for (const user of mockUsers) {
       const res = await request(httpServer)
         .post(paths.users)
-        .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send(user)
         .expect(HttpStatus.CREATED);
       // console.log("res", res.body)
@@ -161,7 +164,7 @@ describe('users', () => {
 
     const response = await request(httpServer)
       .get(paths.users)
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .expect(HttpStatus.OK);
 
     expect(response.body).toEqual({
@@ -205,7 +208,7 @@ describe('users', () => {
 
     const response2 = await request(httpServer)
       .get(paths.users + '?searchLoginTerm=s&sortBy=login')
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .expect(HttpStatus.OK);
 
     expect(response2.body).toEqual({
@@ -237,7 +240,7 @@ describe('users', () => {
 
     const response3 = await request(httpServer)
       .get(paths.users + '?searchEmailTerm=an&sortBy=login&sortDirection=asc')
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .expect(HttpStatus.OK);
 
     expect(response3.body).toEqual({
@@ -282,7 +285,7 @@ describe('users', () => {
     for (const user of mockUsers) {
       const res = await request(httpServer)
         .post(paths.users)
-        .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send(user)
         .expect(HttpStatus.CREATED);
 
@@ -292,19 +295,19 @@ describe('users', () => {
 
     const response = await request(httpServer)
       .delete(paths.users + '/' + ids[0])
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .expect(HttpStatus.NO_CONTENT);
 
     const response1 = await request(httpServer)
       .get(paths.users)
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .expect(HttpStatus.OK);
 
     expect(response1.body.totalCount).toBe(4);
 
     const response2 = await request(httpServer)
       .delete(paths.users + '/111')
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .expect(HttpStatus.NOT_FOUND);
   });
 });

@@ -1,46 +1,24 @@
-import { Test } from '@nestjs/testing';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from '../../src/modules/user-accounts/domain/user.entity';
-import { Session, SessionSchema } from '../../src/modules/user-accounts/domain/session.entity';
-import { JwtModule } from '@nestjs/jwt';
-import { appConfig } from '../../src/common/config/config';
-import { NotificationsModule } from '../../src/modules/notifications/notifications.module';
-import { UsersController } from '../../src/modules/user-accounts/api/users.controller';
-import { AuthController } from '../../src/modules/user-accounts/api/auth.controller';
+import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from '../../src/modules/user-accounts/application/users.service';
-import { UsersRepo } from '../../src/modules/user-accounts/infrastructure/usersRepo';
-import { UsersQueryRepo } from '../../src/modules/user-accounts/infrastructure/users-query.repo';
 import { AuthService } from '../../src/modules/user-accounts/application/auth.service';
-import { JwtService } from '../../src/modules/user-accounts/application/jwt.service';
-import { CryptoService } from '../../src/modules/user-accounts/application/crypto.service';
-import { SessionsRepo } from '../../src/modules/user-accounts/infrastructure/sessions-repo';
 import { EmailService } from '../../src/modules/notifications/email.service';
 import { EmailServiceMock } from '../mocks/email-service.mock';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from '../../src/modules/user-accounts/dto/create-user.dto';
 import { CustomBadRequestException } from '../../src/common/exception/bad-request';
 import { delay } from '../helpers/utils';
+import { AppModule } from '../../src/app.module';
 
 describe('user password recovery', () => {
-  let dbConnection;
+  let dbConnection: any;
   let authService: AuthService;
   let userService: UsersService;
   let emailService: EmailService;
   let sendMailMock: jest.Mock;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [
-        MongooseModule.forRoot('mongodb://localhost/nest-blogger-platform'),
-        MongooseModule.forFeature([
-          { name: User.name, schema: UserSchema },
-          { name: Session.name, schema: SessionSchema },
-        ]),
-        JwtModule.register({ secret: appConfig.jwtSecret }),
-        NotificationsModule,
-      ],
-      controllers: [UsersController, AuthController],
-      providers: [UsersService, UsersRepo, UsersQueryRepo, AuthService, JwtService, CryptoService, SessionsRepo],
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
     })
       .overrideProvider(EmailService)
       .useClass(EmailServiceMock)

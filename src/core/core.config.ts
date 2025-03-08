@@ -20,11 +20,12 @@ export class CoreConfig {
   mongoURI: string = this.configService.get('MONGO_URI');
 
   @IsEnum(Environments, {
-    message:
-      'Ser correct NODE_ENV value, available values: ' +
-      getEnumValues(Environments).join(', '),
+    message: 'Ser correct NODE_ENV value, available values: ' + getEnumValues(Environments).join(', '),
   })
   env: string = this.configService.get('NODE_ENV');
+
+  @IsNotEmpty({ message: 'Set Env variable ADMIN_AUTH, should match the format: login:password' })
+  adminAuth: string = this.configService.get('ADMIN_AUTH');
 
   constructor(private configService: ConfigService<any, true>) {
     validateConfig(this);

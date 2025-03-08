@@ -11,6 +11,8 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { CoreConfig } from './core/core.config';
 import { CoreModule } from './core/core.module';
 
+console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+
 @Module({
   imports: [
     configModule,
@@ -33,6 +35,6 @@ import { CoreModule } from './core/core.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*'); // Логирует все маршруты
+    // consumer.apply(LoggerMiddleware).forRoutes('*'); // Логирует все маршруты
   }
 }

@@ -1,18 +1,27 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
-import { appConfig } from '../../../common/config/config';
 import { AccessTokenPayload, RefreshTokenPayload } from '../dto/token-payload';
+import { UserAccountsConfig } from '../config/user-accounts.config';
 
 @Injectable()
 export class JwtService {
-  constructor(private readonly jwt: NestJwtService) {}
+  constructor(
+    private readonly config: UserAccountsConfig,
+    private readonly jwt: NestJwtService,
+  ) {}
 
   async createAccessToken(userId: string): Promise<string> {
-    return this.jwt.signAsync({ userId }, { expiresIn: appConfig.accessTokenExp });
+    return this.jwt.signAsync(
+      { userId },
+      { expiresIn: this.config.accessTokenExpiresIn /*secret: this.config.jwtTokenSecret */ },
+    );
   }
 
   async createRefreshToken(userId: string, deviceId: string): Promise<string> {
-    return this.jwt.signAsync({ userId, deviceId }, { expiresIn: appConfig.refreshTokenExp });
+    return this.jwt.signAsync(
+      { userId, deviceId },
+      { expiresIn: this.config.refreshTokenExpiresIn /*secret: this.config.jwtTokenSecret*/ },
+    );
   }
 
   async decodeRefreshToken(token: string): Promise<RefreshTokenPayload> {

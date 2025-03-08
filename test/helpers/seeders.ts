@@ -1,13 +1,13 @@
 import request from 'supertest';
 import { paths } from '../../src/common/paths';
 import { mockUsers } from './mock-data';
-import { appConfig } from '../../src/common/config/config';
 import { App } from 'supertest/types';
 import { encodeToBase64 } from '../../src/core/utils/base-64';
 import { CreateUserInputDto } from '../../src/modules/user-accounts/api/input-dto/users.input-dto';
 import { UserViewDto } from '../../src/modules/user-accounts/api/view-dto/user.view-dto';
 import { LoginInputDto } from '../../src/modules/user-accounts/api/input-dto/login.input-dto';
 import { HttpStatus } from '@nestjs/common';
+import { CoreConfig } from '../../src/core/core.config';
 
 export type CreatedUser = {
   id: string;
@@ -27,7 +27,7 @@ export type LoginedUser = {
 };
 
 export const e2eSeeder = {
-  async createAndLoginUser(httpServer: App): Promise<LoginedUser> {
+  async createAndLoginUser(httpServer: App, config: CoreConfig): Promise<LoginedUser> {
     const userInput: CreateUserInputDto = {
       email: 'example@example.com',
       login: 'login',
@@ -36,7 +36,7 @@ export const e2eSeeder = {
 
     const res1 = await request(httpServer)
       .post(paths.users)
-      .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(userInput);
 
     const reqBody: UserViewDto = res1.body;
@@ -64,7 +64,7 @@ export const e2eSeeder = {
     };
   },
 
-  async users(httpServer: App, count: number): Promise<CreatedUser[]> {
+  async users(httpServer: App, count: number, config: CoreConfig): Promise<CreatedUser[]> {
     const createdUsers: CreatedUser[] = [];
 
     let mockUserInd = 0;
@@ -79,7 +79,7 @@ export const e2eSeeder = {
 
       const req = await request(httpServer)
         .post(paths.users)
-        .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send(user);
 
       /* const reqBody: UserViewModel = {

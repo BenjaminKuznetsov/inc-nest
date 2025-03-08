@@ -11,12 +11,13 @@ import { CreateUserInputDto } from './input-dto/users.input-dto';
 import { RegistrationConfirmationInputDto } from './input-dto/registration-confirmation.input-dto';
 import { EmailInputDto } from './input-dto/email.input-dto';
 import { ChangePasswordInputDto } from './input-dto/change-password.input-dto';
-import { appConfig } from '../../../common/config/config';
 import { Request, Response } from 'express';
+import { UserAccountsConfig } from '../config/user-accounts.config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    private readonly config: UserAccountsConfig,
     private readonly authService: AuthService,
     private readonly usersQueryRepo: UsersQueryRepo,
   ) {}
@@ -44,7 +45,7 @@ export class AuthController {
 
     // TODO: устанавливать куки по-нормальному
     res
-      .cookie(appConfig.cookieNames.refreshToken, result.refreshToken, { httpOnly: true, secure: true })
+      .cookie(this.config.refreshTokenCookieName, result.refreshToken, { httpOnly: true, secure: true })
       .json({ accessToken: result.accessToken });
     return { accessToken: result.accessToken };
   }
@@ -89,6 +90,6 @@ export class AuthController {
   async logout(@Req() req: Request, @Res() res: Response) {
     const refreshToken: string = req.cookies.refreshToken;
     await this.authService.logOutUser(refreshToken);
-    res.clearCookie(appConfig.cookieNames.refreshToken, {});
+    res.clearCookie(this.config.refreshTokenCookieName, {});
   }
 }

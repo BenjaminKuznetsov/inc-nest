@@ -23,6 +23,6 @@ describe('AppController (e2e)', () => {
   });
 
   it('/api/hello (GET)', () => {
-    return request(app.getHttpServer()).get('/api/hello').expect(200).expect('Hello World!');
+    return request(app.getHttpServer()).get('/').expect(200).expect('Hello World!');
   });
 });

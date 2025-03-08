@@ -11,23 +11,24 @@ import { App } from 'supertest/types';
 import { paths } from '../../src/common/paths';
 import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/dto/blog-view.dto';
 import { PostViewDto } from '../../src/modules/bloggers-platform/posts/dto/post-view.dto';
-import { appConfig } from '../../src/common/config/config';
 import { encodeToBase64 } from '../../src/core/utils/base-64';
-
-const ADMIN_AUTH = appConfig.adminAuth;
+import { CoreConfig } from '../../src/core/core.config';
 
 describe('posts', () => {
   let app: INestApplication<App>;
+  let config: CoreConfig;
 
   const dbBlogs: BlogViewDto[] = [];
   const dbPosts: PostViewDto[] = [];
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    config = moduleRef.get<CoreConfig>(CoreConfig);
+
+    app = moduleRef.createNestApplication();
     appSetup(app);
     await app.init();
 
@@ -42,7 +43,7 @@ describe('posts', () => {
     for (const data of validBlogs) {
       const response1 = await request(app.getHttpServer())
         .post(paths.blogs)
-        .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send(data)
         .expect(HttpStatus.CREATED);
 
@@ -87,7 +88,7 @@ describe('posts', () => {
     for (const data of invalidPosts) {
       await request(app.getHttpServer())
         .post(paths.posts)
-        .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send({ ...data, blogId: dbBlogs[0].id })
         .expect(HttpStatus.BAD_REQUEST);
     }
@@ -97,7 +98,7 @@ describe('posts', () => {
     for (const data of invalidPosts) {
       await request(app.getHttpServer())
         .post(`${paths.blogs}/${dbBlogs[0].id}/posts`)
-        .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send(data)
         .expect(HttpStatus.BAD_REQUEST);
     }
@@ -108,7 +109,7 @@ describe('posts', () => {
     data.blogId = new ObjectId().toString();
     await request(app.getHttpServer())
       .post(paths.posts)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(data)
       .expect(HttpStatus.BAD_REQUEST);
   });
@@ -118,7 +119,7 @@ describe('posts', () => {
     const blogId = new ObjectId().toString();
     await request(app.getHttpServer())
       .post(`${paths.blogs}/${blogId}/posts`)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(data)
       .expect(HttpStatus.NOT_FOUND);
   });
@@ -130,7 +131,7 @@ describe('posts', () => {
 
       const response1 = await request(app.getHttpServer())
         .post(paths.posts)
-        .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send({ ...data, blogId: blog.id })
         .expect(HttpStatus.CREATED);
 
@@ -162,7 +163,7 @@ describe('posts', () => {
 
       const response1 = await request(app.getHttpServer())
         .post(`${paths.blogs}/${blog.id}/posts`)
-        .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send({ ...data })
         .expect(HttpStatus.CREATED);
 
@@ -229,7 +230,7 @@ describe('posts', () => {
       const id = dbPosts[0].id;
       const response = await request(app.getHttpServer())
         .put(`${paths.posts}/${id}`)
-        .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
         .send(data)
         .expect(HttpStatus.BAD_REQUEST);
       // console.log(JSON.stringify(response.body, null, 2))
@@ -242,7 +243,7 @@ describe('posts', () => {
     data.blogId = dbBlogs[0].id;
     const res = await request(app.getHttpServer())
       .put(`${paths.posts}/${postId}`)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(data)
       .expect(HttpStatus.NOT_FOUND);
     // console.log("res", res.body)
@@ -254,7 +255,7 @@ describe('posts', () => {
     data.blogId = new ObjectId().toString();
     const res = await request(app.getHttpServer())
       .put(`${paths.posts}/${postId}`)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send(data)
       .expect(HttpStatus.BAD_REQUEST);
     // console.log(res.body)
@@ -268,7 +269,7 @@ describe('posts', () => {
 
     await request(app.getHttpServer())
       .put(`${paths.posts}/${post.id}`)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .send({ ...data, blogId: blog.id })
       .expect(HttpStatus.NO_CONTENT);
 
@@ -293,7 +294,7 @@ describe('posts', () => {
     const postId = new ObjectId().toString();
     await request(app.getHttpServer())
       .delete(`${paths.posts}/${postId}`)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .expect(HttpStatus.NOT_FOUND);
   });
 
@@ -301,7 +302,7 @@ describe('posts', () => {
     const postId = dbPosts[0].id;
     await request(app.getHttpServer())
       .delete(`${paths.posts}/${postId}`)
-      .set('Authorization', `Basic ${encodeToBase64(ADMIN_AUTH)}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
       .expect(HttpStatus.NO_CONTENT);
   });
 });

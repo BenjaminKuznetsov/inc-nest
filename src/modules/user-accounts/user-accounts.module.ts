@@ -8,7 +8,6 @@ import { UsersQueryRepo } from './infrastructure/users-query.repo';
 import { AuthController } from './api/auth.controller';
 import { AuthService } from './application/auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { appConfig } from '../../common/config/config';
 import { JwtService } from './application/jwt.service';
 import { CryptoService } from './application/crypto.service';
 import { Session, SessionSchema } from './domain/session.entity';
@@ -22,7 +21,14 @@ import { UserAccountsConfig } from './config/user-accounts.config';
       { name: User.name, schema: UserSchema },
       { name: Session.name, schema: SessionSchema },
     ]),
-    JwtModule.register({ secret: appConfig.jwtSecret }),
+    // TODO: подключить конфиг
+    JwtModule.registerAsync({
+      imports: [UserAccountsModule],
+      inject: [UserAccountsConfig],
+      useFactory: (config: UserAccountsConfig) => ({
+        secret: config.jwtTokenSecret,
+      }),
+    }),
     NotificationsModule,
   ],
   controllers: [UsersController, AuthController],
@@ -36,5 +42,6 @@ import { UserAccountsConfig } from './config/user-accounts.config';
     CryptoService,
     SessionsRepo,
   ],
+  exports: [UserAccountsConfig],
 })
 export class UserAccountsModule {}

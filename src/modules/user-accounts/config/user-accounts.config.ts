@@ -5,14 +5,8 @@ import { IsNotEmpty, Matches } from 'class-validator';
 
 @Injectable()
 export class UserAccountsConfig {
-  @IsNotEmpty({ message: 'Set Env variable ACCESS_TOKEN_SECRET, should be not empty' })
-  accessTokenSecret: string = this.configService.get('ACCESS_TOKEN_SECRET');
-
-  @IsNotEmpty({ message: 'Set Env variable REFRESH_TOKEN_SECRET, should be not empty' })
-  refreshTokenSecret: string = this.configService.get('REFRESH_TOKEN_SECRET');
-
-  @IsNotEmpty({ message: 'Set Env variable ADMIN_AUTH, should match the format: login:password' })
-  adminAuth: string = this.configService.get('ADMIN_AUTH');
+  @IsNotEmpty({ message: 'Set Env variable JWT_TOKEN_SECRET, should be not empty' })
+  jwtTokenSecret: string = this.configService.get('JWT_TOKEN_SECRET');
 
   @Matches(/^\d+[smhd]$/, {
     message: 'Set Env variable ACCESS_TOKEN_EXPIRES_IN, should match format like "60s", "10m", "1h", "1d"',
