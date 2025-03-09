@@ -1,6 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from '../../src/modules/user-accounts/application/users.service';
-import { AuthService } from '../../src/modules/user-accounts/application/auth.service';
+import { Test } from '@nestjs/testing';
 import { EmailService } from '../../src/modules/notifications/email.service';
 import { EmailServiceMock } from '../mocks/email-service.mock';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
@@ -8,16 +6,34 @@ import { CreateUserDto } from '../../src/modules/user-accounts/dto/create-user.d
 import { CustomBadRequestException } from '../../src/common/exception/bad-request';
 import { delay } from '../helpers/utils';
 import { AppModule } from '../../src/app.module';
+import {
+  RecoverPasswordCommand,
+  RecoverPasswordUseCase,
+} from '../../src/modules/user-accounts/application/use-cases/recover-password.use-case';
+import {
+  CreateUserCommand,
+  CreateUserUseCase,
+} from '../../src/modules/user-accounts/application/use-cases/create-user.use-case';
+import {
+  ChangePasswordCommand,
+  ChangePasswordUseCase,
+} from '../../src/modules/user-accounts/application/use-cases/change-password.use-case';
+import {
+  LoginUserCommand,
+  LoginUserUseCase,
+} from '../../src/modules/user-accounts/application/use-cases/login-user.use-case';
 
 describe('user password recovery', () => {
   let dbConnection: any;
-  let authService: AuthService;
-  let userService: UsersService;
   let emailService: EmailService;
   let sendMailMock: jest.Mock;
+  let passwordRecoveryUseCase: RecoverPasswordUseCase;
+  let createUserUseCase: CreateUserUseCase;
+  let changePasswordUseCase: ChangePasswordUseCase;
+  let loginUserUseCase: LoginUserUseCase;
 
   beforeAll(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
+    const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(EmailService)
@@ -27,9 +43,12 @@ describe('user password recovery', () => {
     dbConnection = moduleRef.get('DatabaseConnection');
     await dbConnection.dropDatabase();
 
-    authService = moduleRef.get(AuthService);
     emailService = moduleRef.get(EmailService);
-    userService = moduleRef.get(UsersService);
+    passwordRecoveryUseCase = moduleRef.get(RecoverPasswordUseCase);
+    createUserUseCase = moduleRef.get(CreateUserUseCase);
+    changePasswordUseCase = moduleRef.get(ChangePasswordUseCase);
+    loginUserUseCase = moduleRef.get(LoginUserUseCase);
+
     sendMailMock = emailService.userRecoveryPassword as jest.Mock;
   });
 
@@ -38,7 +57,9 @@ describe('user password recovery', () => {
   });
 
   it('shouldn`t send email if user isn`t registered', async () => {
-    await expect(authService.passwordRecovery('user1@user1.com')).rejects.toThrow(NotFoundException);
+    await expect(passwordRecoveryUseCase.execute(new RecoverPasswordCommand('user1@user1.com'))).rejects.toThrow(
+      NotFoundException,
+    );
     expect(sendMailMock).not.toHaveBeenCalled();
   });
 
@@ -49,30 +70,38 @@ describe('user password recovery', () => {
       password: 'johnjohn',
     };
 
-    await userService.createUser(user);
+    await createUserUseCase.execute(new CreateUserCommand(user));
 
     const newPassword = 'newPassword';
 
     // send email
-    await expect(authService.passwordRecovery(user.email)).resolves.not.toThrow();
+    await expect(passwordRecoveryUseCase.execute(new RecoverPasswordCommand(user.email))).resolves.not.toThrow();
     expect(sendMailMock).toHaveBeenCalledTimes(1);
     const recoveryCode = sendMailMock.mock.lastCall![0].passwordRecovery!.recoveryCode;
 
     // change password
-    await expect(authService.newPassword({ recoveryCode, newPassword })).resolves.not.toThrow();
+    await expect(
+      changePasswordUseCase.execute(new ChangePasswordCommand({ recoveryCode, newPassword })),
+    ).resolves.not.toThrow();
 
     // shouldn`t login with old password
     await expect(
-      authService.loginUser({ loginOrEmail: user.email, password: user.password, userAgent: '', ip: '' }),
+      loginUserUseCase.execute(
+        new LoginUserCommand({ loginOrEmail: user.email, password: user.password, userAgent: '', ip: '' }),
+      ),
     ).rejects.toThrow(UnauthorizedException);
 
     // should login with new password
     await expect(
-      authService.loginUser({ loginOrEmail: user.email, password: newPassword, userAgent: '', ip: '' }),
+      loginUserUseCase.execute(
+        new LoginUserCommand({ loginOrEmail: user.email, password: newPassword, userAgent: '', ip: '' }),
+      ),
     ).resolves.not.toThrow();
 
     // shouldn`t change password with same recovery code twice
-    await expect(authService.newPassword({ recoveryCode, newPassword })).rejects.toThrow(CustomBadRequestException);
+    await expect(
+      changePasswordUseCase.execute(new ChangePasswordCommand({ recoveryCode, newPassword })),
+    ).rejects.toThrow(CustomBadRequestException);
   });
 
   it.skip('shouldn`t change password with expired recovery code', async () => {
@@ -82,12 +111,12 @@ describe('user password recovery', () => {
       email: 'johnan@john.com',
       password: 'johnjohn',
     };
-    await userService.createUser(user);
-    await authService.passwordRecovery(user.email);
+    await createUserUseCase.execute(new CreateUserCommand(user));
+    await passwordRecoveryUseCase.execute(new RecoverPasswordCommand(user.email));
     const recoveryCode = sendMailMock.mock.lastCall![0].passwordRecovery!.recoveryCode;
     await delay(5000);
-    await expect(authService.newPassword({ recoveryCode, newPassword: user.password })).rejects.toThrow(
-      new CustomBadRequestException({ field: 'recoveryCode', message: 'Recovery code is expired' }),
-    );
+    await expect(
+      changePasswordUseCase.execute(new ChangePasswordCommand({ recoveryCode, newPassword: user.password })),
+    ).rejects.toThrow(new CustomBadRequestException({ field: 'recoveryCode', message: 'Recovery code is expired' }));
   }, 10000);
 });

@@ -1,52 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument, UserModelType } from '../domain/user.entity';
-import { CreateUserDto, CreateUserOptions } from '../dto/create-user.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UserDocument } from '../domain/user.entity';
 import { UsersRepo } from '../infrastructure/usersRepo';
 import { CryptoService } from './crypto.service';
-import { CustomBadRequestException } from '../../../common/exception/bad-request';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private UserModel: UserModelType,
-    private usersRepository: UsersRepo,
+    private readonly usersRepo: UsersRepo,
     private readonly cryptoService: CryptoService,
   ) {}
 
-  async createUser(dto: CreateUserDto, options: CreateUserOptions = new CreateUserOptions()): Promise<string> {
-    const userWithSuchLogin = await this.usersRepository.getUserByFilter({ login: dto.login });
-    if (userWithSuchLogin) {
-      throw new CustomBadRequestException({ field: 'login', message: 'User with such login already exists' });
+  async checkCredentials(loginOrEmail: string, password: string): Promise<UserDocument> {
+    const user = await this.usersRepo.getByLoginOrEmail(loginOrEmail);
+    if (!user) {
+      throw new UnauthorizedException();
     }
 
-    const userWithSuchEmail = await this.usersRepository.getUserByFilter({ email: dto.email });
-    if (userWithSuchEmail) {
-      throw new CustomBadRequestException({ field: 'email', message: 'User with such email already exists' });
+    const isPasswordCorrect = await this.cryptoService.checkPassword(password, user.passwordHash);
+    if (!isPasswordCorrect) {
+      throw new UnauthorizedException();
     }
 
-    const passwordHash = await this.cryptoService.generateHash(dto.password);
-
-    const user = this.UserModel.createInstance(
-      {
-        email: dto.email,
-        login: dto.login,
-        password: passwordHash,
-      },
-      options,
-    );
-
-    await this.usersRepository.save(user);
-    return user._id.toString();
-  }
-
-  async deleteUser(id: string) {
-    const user = await this.usersRepository.findOrNotFoundFail(id);
-    user.makeDeleted();
-    await this.usersRepository.save(user);
-  }
-
-  async findById(id: string): Promise<UserDocument | null> {
-    return this.usersRepository.findById(id);
+    return user;
   }
 }

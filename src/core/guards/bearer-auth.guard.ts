@@ -1,15 +1,15 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '../../modules/user-accounts/application/jwt.service';
-import { UsersService } from '../../modules/user-accounts/application/users.service';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/isPublic';
 import { Request } from 'express';
+import { UsersRepo } from '../../modules/user-accounts/infrastructure/usersRepo';
 
 @Injectable()
 export class BearerAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly usersService: UsersService,
+    private readonly usersRepository: UsersRepo,
     private reflector: Reflector,
   ) {}
 
@@ -30,7 +30,7 @@ export class BearerAuthGuard implements CanActivate {
     }
 
     const payload = await this.jwtService.verifyAccessToken(token);
-    const user = await this.usersService.findById(payload.userId);
+    const user = await this.usersRepository.findById(payload.userId);
     if (!user) {
       throw new UnauthorizedException();
     }

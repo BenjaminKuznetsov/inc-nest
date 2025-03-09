@@ -10,6 +10,7 @@ import { LoggerMiddleware } from './common/middleware/logger';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { CoreConfig } from './core/core.config';
 import { CoreModule } from './core/core.module';
+import { CqrsModule } from '@nestjs/cqrs';
 
 console.log('process.env.NODE_ENV', process.env.NODE_ENV);
 
@@ -17,6 +18,7 @@ console.log('process.env.NODE_ENV', process.env.NODE_ENV);
   imports: [
     configModule,
     CoreModule,
+    CqrsModule.forRoot(),
     MongooseModule.forRootAsync({
       useFactory: (coreConfig: CoreConfig) => {
         return {

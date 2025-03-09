@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { paths } from '../../../common/paths';
-import { AuthService } from '../application/auth.service';
+import { UsersService } from '../application/users.service';
 import { UserId } from '../../../core/decorators/userId';
 import { UsersQueryRepo } from '../infrastructure/users-query.repo';
 import { BearerAuthGuard } from '../../../core/guards/bearer-auth.guard';
@@ -13,12 +13,22 @@ import { EmailInputDto } from './input-dto/email.input-dto';
 import { ChangePasswordInputDto } from './input-dto/change-password.input-dto';
 import { Request, Response } from 'express';
 import { UserAccountsConfig } from '../config/user-accounts.config';
+import { CommandBus } from '@nestjs/cqrs';
+import { LoginUserCommand } from '../application/use-cases/login-user.use-case';
+import { CreateUserCommand } from '../application/use-cases/create-user.use-case';
+import { ConfirmRegistrationCommand } from '../application/use-cases/confirm-registration.use-case';
+import { ResendConfirmationEmailCommand } from '../application/use-cases/resend-confirmation-email.use-case';
+import { RecoverPasswordCommand } from '../application/use-cases/recover-password.use-case';
+import { ChangePasswordCommand } from '../application/use-cases/change-password.use-case';
+import { LogoutUserCommand } from '../application/use-cases/logout-user.use-case';
+import { RegisterUserCommand } from '../application/use-cases/register-user.use-case';
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    private readonly commandBus: CommandBus,
     private readonly config: UserAccountsConfig,
-    private readonly authService: AuthService,
+    private readonly authService: UsersService,
     private readonly usersQueryRepo: UsersQueryRepo,
   ) {}
 
@@ -36,12 +46,14 @@ export class AuthController {
     @Headers('user-agent') userAgent: string,
     @Res() res: Response,
   ): Promise<LoginViewDto> {
-    const result = await this.authService.loginUser({
-      loginOrEmail: input.loginOrEmail,
-      password: input.password,
-      ip,
-      userAgent,
-    });
+    const result = await this.commandBus.execute(
+      new LoginUserCommand({
+        loginOrEmail: input.loginOrEmail,
+        password: input.password,
+        ip,
+        userAgent,
+      }),
+    );
 
     // TODO: устанавливать куки по-нормальному
     res
@@ -53,31 +65,31 @@ export class AuthController {
   @Post(paths.auth.subs.registration)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(@Body() input: CreateUserInputDto) {
-    return this.authService.userRegistration(input);
+    return this.commandBus.execute(new RegisterUserCommand(input));
   }
 
   @Post(paths.auth.subs.registrationConfirmation)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registrationConfirmation(@Body() input: RegistrationConfirmationInputDto) {
-    return this.authService.confirmUserRegistration(input.code);
+    return this.commandBus.execute(new ConfirmRegistrationCommand(input.code));
   }
 
   @Post(paths.auth.subs.registrationEmailResending)
   @HttpCode(HttpStatus.NO_CONTENT)
   async registrationEmailResending(@Body() input: EmailInputDto) {
-    return this.authService.resendUserConfirmationEmail(input.email);
+    return this.commandBus.execute(new ResendConfirmationEmailCommand(input.email));
   }
 
   @Post(paths.auth.subs.passwordRecovery)
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(@Body() input: EmailInputDto) {
-    return this.authService.passwordRecovery(input.email);
+    return this.commandBus.execute(new RecoverPasswordCommand(input.email));
   }
 
   @Post(paths.auth.subs.newPassword)
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(@Body() input: ChangePasswordInputDto) {
-    return this.authService.newPassword(input);
+    return this.commandBus.execute(new ChangePasswordCommand(input));
   }
 
   // @Post(paths.auth.subs.refresh)
@@ -89,7 +101,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Req() req: Request, @Res() res: Response) {
     const refreshToken: string = req.cookies.refreshToken;
-    await this.authService.logOutUser(refreshToken);
+    await this.commandBus.execute(new LogoutUserCommand(refreshToken));
     res.clearCookie(this.config.refreshTokenCookieName, {});
   }
 }
