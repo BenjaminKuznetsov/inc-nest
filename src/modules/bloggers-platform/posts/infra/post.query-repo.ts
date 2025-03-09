@@ -1,23 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostModelType } from '../domain/post.entity';
-import { GetBlogsQueryParams } from '../../blogs/dto/blogs-query-params.dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
-import { BlogViewDto } from '../../blogs/dto/blog-view.dto';
 import { FilterQuery } from 'mongoose';
-import { Blog } from '../../blogs/domain/blog.entity';
 import { GetPostsQueryParams } from '../dto/posts-query-params.dto';
 import { PostViewDto } from '../dto/post-view.dto';
 
 @Injectable()
 export class PostsQueryRepo {
-  constructor(
-    @InjectModel(Post.name) private readonly PostModel: PostModelType,
-  ) {}
+  constructor(@InjectModel(Post.name) private readonly PostModel: PostModelType) {}
 
-  async getAll(
-    query: GetPostsQueryParams,
-  ): Promise<PaginatedViewDto<PostViewDto>> {
+  async getAll(query: GetPostsQueryParams): Promise<PaginatedViewDto<PostViewDto>> {
     const filter: FilterQuery<Post> = {
       deletedAt: null,
     };

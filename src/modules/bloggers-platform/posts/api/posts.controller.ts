@@ -20,10 +20,15 @@ import { PostsQueryRepo } from '../infra/post.query-repo';
 import { GetCommentsQueryParams } from '../../comments/dto/comments-query-params.dto';
 import { CommentsQueryRepo } from '../../comments/infra/comment.query-repo';
 import { BasicAuthGuard } from '../../../../core/guards/basic-auth.guard';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreatePostCommand } from '../application/use-cases/create-post.use-case';
+import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
+import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
 
 @Controller('posts')
 export class PostsController {
   constructor(
+    private readonly commandBus: CommandBus,
     private readonly postsService: PostsService,
     private readonly postsQueryRepo: PostsQueryRepo,
     private readonly commentsQueryRepo: CommentsQueryRepo,
@@ -49,7 +54,7 @@ export class PostsController {
   @Post()
   @UseGuards(BasicAuthGuard)
   async create(@Body() dto: PostInputDto): Promise<PostViewDto> {
-    const postId = await this.postsService.create(dto);
+    const postId = await this.commandBus.execute(new CreatePostCommand(dto));
     return this.postsQueryRepo.getById(postId);
   }
 
@@ -57,13 +62,13 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   update(@Param('id') id: string, @Body() dto: PostInputDto) {
-    return this.postsService.update(id, dto);
+    return this.commandBus.execute(new UpdatePostCommand(id, dto));
   }
 
   @Delete(':id')
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   delete(@Param('id') id: string) {
-    return this.postsService.delete(id);
+    return this.commandBus.execute(new DeletePostCommand(id));
   }
 }

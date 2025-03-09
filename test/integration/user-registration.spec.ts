@@ -21,7 +21,7 @@ import {
   ResendConfirmationEmailUseCase,
 } from '../../src/modules/user-accounts/application/use-cases/resend-confirmation-email.use-case';
 
-describe.skip('user registration', () => {
+describe('user registration', () => {
   let emailService: EmailService;
   let registerUserUseCase: RegisterUserUseCase;
   let confirmRegistrationUseCase: ConfirmRegistrationUseCase;

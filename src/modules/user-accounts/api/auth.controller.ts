@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { paths } from '../../../common/paths';
-import { UsersService } from '../application/users.service';
 import { UserId } from '../../../core/decorators/userId';
 import { UsersQueryRepo } from '../infrastructure/users-query.repo';
 import { BearerAuthGuard } from '../../../core/guards/bearer-auth.guard';
@@ -15,7 +14,6 @@ import { Request, Response } from 'express';
 import { UserAccountsConfig } from '../config/user-accounts.config';
 import { CommandBus } from '@nestjs/cqrs';
 import { LoginUserCommand } from '../application/use-cases/login-user.use-case';
-import { CreateUserCommand } from '../application/use-cases/create-user.use-case';
 import { ConfirmRegistrationCommand } from '../application/use-cases/confirm-registration.use-case';
 import { ResendConfirmationEmailCommand } from '../application/use-cases/resend-confirmation-email.use-case';
 import { RecoverPasswordCommand } from '../application/use-cases/recover-password.use-case';
@@ -28,7 +26,6 @@ export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly config: UserAccountsConfig,
-    private readonly authService: UsersService,
     private readonly usersQueryRepo: UsersQueryRepo,
   ) {}
 
