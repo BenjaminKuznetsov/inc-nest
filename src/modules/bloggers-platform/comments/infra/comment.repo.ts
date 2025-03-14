@@ -1,18 +1,19 @@
-// import { Injectable } from '@nestjs/common';
-// import { CommentInputDto } from '../api/dto/comment-input.dto';
-//
-// @Injectable()
-// export class CommentRepo {
-//   async create(dto: CommentInputDto): Promise<string> {
-//     // Реализация метода
-//     return 'id';
-//   }
-//
-//   async update(id: string, dto: CommentInputDto): Promise<void> {
-//     // Реализация метода
-//   }
-//
-//   async delete(id: string): Promise<void> {
-//     // Реализация метода
-//   }
-// }
+import { Injectable } from '@nestjs/common';
+import { Comment, CommentDocument, CommentModelType } from '../domain/comment.entity';
+import { InjectModel } from '@nestjs/mongoose';
+
+@Injectable()
+export class CommentRepo {
+  constructor(@InjectModel(Comment.name) private CommentModel: CommentModelType) {}
+
+  async save(comment: CommentDocument): Promise<void> {
+    await comment.save();
+  }
+
+  async findById(id: string): Promise<CommentDocument | null> {
+    return this.CommentModel.findOne({
+      _id: id,
+      deletedAt: null,
+    });
+  }
+}

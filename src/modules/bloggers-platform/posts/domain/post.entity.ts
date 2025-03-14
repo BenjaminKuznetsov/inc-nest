@@ -2,9 +2,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model, Types } from 'mongoose';
 import { PostInputDto } from '../dto/post-input.dto';
 import { BlogDocument } from '../../blogs/domain/blog.entity';
+import { Likeable } from '../../common/likeable';
 
 @Schema({ timestamps: true })
-export class Post {
+export class Post extends Likeable {
   /**
    * The title of the post.
    * @type {string}
@@ -39,6 +40,20 @@ export class Post {
    */
   @Prop({ type: String, required: true })
   blogName: string;
+
+  /**
+   * The number of likes on the post
+   * @type {number}
+   */
+  @Prop({ type: Number, default: 0 })
+  likesCount: number;
+
+  /**
+   * The number of dislikes on the post
+   * @type {number}
+   */
+  @Prop({ type: Number, default: 0 })
+  dislikesCount: number;
 
   /**
    * Deletion timestamp, nullable, if date exist, means entity soft deleted

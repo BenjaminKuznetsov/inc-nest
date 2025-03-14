@@ -3,7 +3,7 @@ import { EmailService } from '../../src/modules/notifications/email.service';
 import { EmailServiceMock } from '../mocks/email-service.mock';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from '../../src/modules/user-accounts/dto/create-user.dto';
-import { CustomBadRequestException } from '../../src/common/exception/bad-request';
+import { CustomBadRequestException } from '../../src/core/exception/bad-request';
 import { delay } from '../helpers/utils';
 import { AppModule } from '../../src/app.module';
 import {

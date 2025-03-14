@@ -5,7 +5,7 @@ import { App } from 'supertest/types';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { appSetup } from '../../src/setup/app.setup';
-import { paths } from '../../src/common/paths';
+import { paths } from '../../src/core/paths';
 import { CoreConfig } from '../../src/core/core.config';
 
 describe('auth', () => {

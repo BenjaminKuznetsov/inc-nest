@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { paths } from '../../src/common/paths';
+import { paths } from '../../src/core/paths';
 import { invalidBlogs, validBlogs } from '../helpers/mock-data';
 import { ObjectId } from 'mongodb';
 import { isValidIsoDate } from '../helpers/utils';

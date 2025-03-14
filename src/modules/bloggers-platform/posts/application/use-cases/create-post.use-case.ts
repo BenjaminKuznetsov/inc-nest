@@ -3,7 +3,7 @@ import { Post, PostModelType } from '../../domain/post.entity';
 import { PostInputDto } from '../../dto/post-input.dto';
 import { BlogsRepo } from '../../../blogs/infra/blogs.repo';
 import { PostsRepo } from '../../infra/post.repo';
-import { CustomBadRequestException } from '../../../../../common/exception/bad-request';
+import { CustomBadRequestException } from '../../../../../core/exception/bad-request';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class CreatePostCommand {

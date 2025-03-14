@@ -1,9 +1,11 @@
 import { CommentDocument } from '../domain/comment.entity';
+import { UserDocument } from '../../../user-accounts/domain/user.entity';
+import { LikeStatus } from '../../likes/domain/like.entity';
 
 type LikesInfo = {
   likesCount: number;
   dislikesCount: number;
-  myStatus: 'None';
+  myStatus: LikeStatus;
 };
 
 export class CommentViewDto {
@@ -16,19 +18,19 @@ export class CommentViewDto {
   createdAt: string;
   likesInfo: LikesInfo;
 
-  static mapToView(comment: CommentDocument): CommentViewDto {
+  static mapToView(comment: CommentDocument, commentator: UserDocument, userLikeStatus: LikeStatus): CommentViewDto {
     return {
       id: comment.id,
       content: comment.content,
       commentatorInfo: {
-        userId: 'string',
-        userLogin: 'string',
+        userId: commentator.id,
+        userLogin: commentator.login,
       },
       createdAt: comment.createdAt.toISOString(),
       likesInfo: {
         likesCount: comment.likesCount,
         dislikesCount: comment.dislikesCount,
-        myStatus: 'None',
+        myStatus: userLikeStatus,
       },
     };
   }

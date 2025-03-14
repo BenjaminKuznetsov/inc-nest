@@ -1,6 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfirmationStatus, DeletionStatus, User, UserDocument, UserModelType } from '../domain/user.entity';
 import { NotFoundException } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 type UserDBFilter = {
   login?: string;
@@ -15,7 +16,7 @@ export class UsersRepo {
     await user.save();
   }
 
-  async findById(id: string): Promise<UserDocument | null> {
+  async findById(id: string | Types.ObjectId): Promise<UserDocument | null> {
     return this.UserModel.findOne({
       _id: id,
       deletionStatus: { $ne: DeletionStatus.PermanentDeleted },

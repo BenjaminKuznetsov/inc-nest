@@ -1,6 +1,6 @@
 import { ConfirmationStatus } from '../../domain/user.entity';
 import { UsersRepo } from '../../infrastructure/usersRepo';
-import { CustomBadRequestException } from '../../../../common/exception/bad-request';
+import { CustomBadRequestException } from '../../../../core/exception/bad-request';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class ConfirmRegistrationCommand {

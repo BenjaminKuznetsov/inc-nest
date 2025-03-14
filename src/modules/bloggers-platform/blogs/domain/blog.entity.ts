@@ -81,7 +81,7 @@ export class Blog {
    */
   makeDeleted() {
     if (this.deletedAt !== null) {
-      throw new Error('Entity already deleted'); // TODO: replase with domain exception
+      throw new Error('Entity already deleted'); // TODO: replace with domain exception
     }
     this.deletedAt = new Date();
   }

@@ -4,7 +4,7 @@ import { AppModule } from '../../src/app.module';
 import { appSetup } from '../../src/setup/app.setup';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
-import { paths } from '../../src/common/paths';
+import { paths } from '../../src/core/paths';
 import { mockUsers } from '../helpers/mock-data';
 import { CreateUserInputDto } from '../../src/modules/user-accounts/api/input-dto/users.input-dto';
 import { encodeToBase64 } from '../../src/core/utils/base-64';

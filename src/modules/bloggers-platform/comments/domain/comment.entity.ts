@@ -1,11 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model, Types } from 'mongoose';
-import { BlogDocument } from '../../blogs/domain/blog.entity';
-import { Post } from '../../posts/domain/post.entity';
 import { CommentCreateDto } from '../dto/comment-create.dto';
+import { Likeable } from '../../common/likeable';
 
 @Schema({ timestamps: true })
-export class Comment {
+export class Comment extends Likeable {
   /**
    * The content of the comment
    * @type {string}
@@ -66,16 +65,29 @@ export class Comment {
     return this._id.toString();
   }
 
-  static createInstance(
-    dto: CommentCreateDto,
-    blog: BlogDocument,
-  ): CommentDocument {
+  static createInstance(dto: CommentCreateDto): CommentDocument {
     const comment = new this();
     comment.content = dto.content;
-    comment.commentatorId = dto.commentatorId;
-    comment.postId = dto.postId;
+    comment.commentatorId = new Types.ObjectId(dto.commentatorId);
+    comment.postId = new Types.ObjectId(dto.postId);
 
     return comment as CommentDocument;
+  }
+
+  /**
+   * Marks the user as deleted
+   * Throws an error if already deleted
+   * @throws {Error} If the entity is already deleted
+   */
+  makeDeleted() {
+    if (this.deletedAt !== null) {
+      throw new Error('Entity already deleted'); // TODO: replace with domain exception
+    }
+    this.deletedAt = new Date();
+  }
+
+  update(content: string) {
+    this.content = content;
   }
 }
 
@@ -85,4 +97,4 @@ CommentSchema.loadClass(Comment);
 
 export type CommentDocument = HydratedDocument<Comment>;
 
-export type CommentModelType = Model<CommentDocument> & typeof Post;
+export type CommentModelType = Model<CommentDocument> & typeof Comment;

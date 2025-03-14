@@ -1,6 +1,6 @@
 import { UsersRepo } from '../../infrastructure/usersRepo';
 import { CryptoService } from '../crypto.service';
-import { CustomBadRequestException } from '../../../../common/exception/bad-request';
+import { CustomBadRequestException } from '../../../../core/exception/bad-request';
 import { ChangePasswordInputDto } from '../../api/input-dto/change-password.input-dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 

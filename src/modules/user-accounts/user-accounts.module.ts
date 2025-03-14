@@ -58,6 +58,6 @@ import { ResendConfirmationEmailUseCase } from './application/use-cases/resend-c
     UsersRepo,
     UsersService,
   ],
-  exports: [UserAccountsConfig],
+  exports: [UserAccountsConfig, UsersRepo, JwtService],
 })
 export class UserAccountsModule {}

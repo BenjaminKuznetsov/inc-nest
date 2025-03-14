@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Headers, HttpCode, HttpStatus, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { paths } from '../../../common/paths';
-import { UserId } from '../../../core/decorators/userId';
+import { paths } from '../../../core/paths';
+import { User } from '../../../core/decorators/user';
 import { UsersQueryRepo } from '../infrastructure/users-query.repo';
 import { BearerAuthGuard } from '../../../core/guards/bearer-auth.guard';
 import { LoginInputDto } from './input-dto/login.input-dto';
@@ -31,7 +31,7 @@ export class AuthController {
 
   @UseGuards(BearerAuthGuard)
   @Get(paths.auth.subs.me)
-  async getMe(@UserId() userId: string): Promise<MeViewDto> {
+  async getMe(@User('id') userId: string): Promise<MeViewDto> {
     return this.usersQueryRepo.getMe(userId);
   }
 

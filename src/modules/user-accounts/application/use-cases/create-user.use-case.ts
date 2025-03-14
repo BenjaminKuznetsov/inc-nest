@@ -3,7 +3,7 @@ import { User, UserModelType } from '../../domain/user.entity';
 import { CreateUserDto, CreateUserOptions } from '../../dto/create-user.dto';
 import { UsersRepo } from '../../infrastructure/usersRepo';
 import { CryptoService } from '../crypto.service';
-import { CustomBadRequestException } from '../../../../common/exception/bad-request';
+import { CustomBadRequestException } from '../../../../core/exception/bad-request';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class CreateUserCommand {

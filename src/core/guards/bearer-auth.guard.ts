@@ -1,20 +1,12 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '../../modules/user-accounts/application/jwt.service';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/isPublic';
-import { Request } from 'express';
-import { UsersRepo } from '../../modules/user-accounts/infrastructure/usersRepo';
 
 @Injectable()
 export class BearerAuthGuard implements CanActivate {
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly usersRepository: UsersRepo,
-    private reflector: Reflector,
-  ) {}
+  constructor(private reflector: Reflector) {}
 
-  // TODO: move token parsing to middleware
-  async canActivate(context: ExecutionContext): Promise<true> {
+  canActivate(context: ExecutionContext): boolean {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -24,26 +16,10 @@ export class BearerAuthGuard implements CanActivate {
     }
 
     const req = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(req);
-    if (!token) {
+    if (!req.user) {
       throw new UnauthorizedException();
     }
-
-    const payload = await this.jwtService.verifyAccessToken(token);
-    const user = await this.usersRepository.findById(payload.userId);
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
-    req.user = {
-      userId: payload.userId,
-    };
 
     return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }

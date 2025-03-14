@@ -1,6 +1,6 @@
 import { ConfirmationStatus, UserDocument } from '../../domain/user.entity';
 import { UsersRepo } from '../../infrastructure/usersRepo';
-import { CustomBadRequestException } from '../../../../common/exception/bad-request';
+import { CustomBadRequestException } from '../../../../core/exception/bad-request';
 import { randomUUID } from 'node:crypto';
 import { add } from 'date-fns';
 import { EmailService } from '../../../notifications/email.service';

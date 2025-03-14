@@ -1,6 +1,6 @@
 import request from 'supertest';
-import { paths } from '../../src/common/paths';
-import { mockUsers } from './mock-data';
+import { paths } from '../../src/core/paths';
+import { mockUsers, validBlogs, validPosts } from './mock-data';
 import { App } from 'supertest/types';
 import { encodeToBase64 } from '../../src/core/utils/base-64';
 import { CreateUserInputDto } from '../../src/modules/user-accounts/api/input-dto/users.input-dto';
@@ -8,6 +8,9 @@ import { UserViewDto } from '../../src/modules/user-accounts/api/view-dto/user.v
 import { LoginInputDto } from '../../src/modules/user-accounts/api/input-dto/login.input-dto';
 import { HttpStatus } from '@nestjs/common';
 import { CoreConfig } from '../../src/core/core.config';
+import { PostViewDto } from '../../src/modules/bloggers-platform/posts/dto/post-view.dto';
+import { PostInputDto } from '../../src/modules/bloggers-platform/posts/dto/post-input.dto';
+import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/dto/blog-view.dto';
 
 export type CreatedUser = {
   id: string;
@@ -27,17 +30,14 @@ export type LoginedUser = {
 };
 
 export const e2eSeeder = {
-  async createAndLoginUser(httpServer: App, config: CoreConfig): Promise<LoginedUser> {
-    const userInput: CreateUserInputDto = {
-      email: 'example@example.com',
-      login: 'login',
-      password: 'password',
-    };
+  async createAndLoginUser(httpServer: App, config: CoreConfig, index: number = 0): Promise<LoginedUser> {
+    const userInput: CreateUserInputDto = mockUsers[index];
 
     const res1 = await request(httpServer)
       .post(paths.users)
       .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
-      .send(userInput);
+      .send(userInput)
+      .expect(HttpStatus.CREATED);
 
     const reqBody: UserViewDto = res1.body;
 
@@ -50,10 +50,7 @@ export const e2eSeeder = {
 
     const accessToken = reqs2.body.accessToken;
 
-    const res3 = await request(httpServer)
-      .get(paths.auth.me)
-      .set('Authorization', `Bearer ${accessToken}`)
-      .expect(HttpStatus.OK);
+    await request(httpServer).get(paths.auth.me).set('Authorization', `Bearer ${accessToken}`).expect(HttpStatus.OK);
 
     return {
       id: reqBody.id,
@@ -105,89 +102,90 @@ export const e2eSeeder = {
     return createdUsers;
   },
 
-  // async blogs(count: number): Promise<BlogViewModel[]> {
-  //   const createdBlogs: BlogViewModel[] = [];
-  //
-  //   for (let i = 0; i < count; i++) {
-  //     const blog = validBlogs[i];
-  //
-  //     if (!blog) break;
-  //
-  //     const req = await request(app)
-  //       .post(paths.blogs)
-  //       .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
-  //       .send(blog)
-  //       .expect(HttpStatus.Created);
-  //
-  //     expect(req.body).toEqual({
-  //       id: expect.any(String),
-  //       name: blog.name,
-  //       description: blog.description,
-  //       websiteUrl: blog.websiteUrl,
-  //       createdAt: expect.any(String),
-  //       isMembership: expect.any(Boolean),
-  //     });
-  //
-  //     const createdBlog: BlogViewModel = {
-  //       id: req.body.id,
-  //       name: req.body.name,
-  //       description: req.body.description,
-  //       websiteUrl: req.body.websiteUrl,
-  //       createdAt: req.body.createdAt,
-  //       isMembership: req.body.isMembership,
-  //     };
-  //
-  //     createdBlogs.push(createdBlog);
-  //   }
-  //
-  //   return createdBlogs;
-  // },
+  async blogs(httpServer: App, count: number, config: CoreConfig): Promise<BlogViewDto[]> {
+    const createdBlogs: BlogViewDto[] = [];
 
-  // async posts(count: number): Promise<PostViewModel[]> {
-  //   const [blog] = await this.blogs(1);
-  //
-  //   const createdPosts: PostViewModel[] = [];
-  //
-  //   for (let i = 0; i < count; i++) {
-  //     const post = validPosts[i];
-  //
-  //     if (!post) break;
-  //
-  //     const postInput: PostInputModel = {
-  //       blogId: blog.id,
-  //       content: post.content,
-  //       shortDescription: post.shortDescription,
-  //       title: post.title,
-  //     };
-  //
-  //     const req = await request(app)
-  //       .post(paths.posts)
-  //       .set('Authorization', `Basic ${encodeToBase64(appConfig.adminAuth)}`)
-  //       .send(postInput)
-  //       .expect(HttpStatus.Created);
-  //
-  //     expect(req.body).toEqual({
-  //       id: expect.any(String),
-  //       title: post.title,
-  //       shortDescription: post.shortDescription,
-  //       content: post.content,
-  //       blogId: blog.id,
-  //       blogName: blog.name,
-  //       createdAt: expect.any(String),
-  //     });
-  //
-  //     const createdPost: PostViewModel = {
-  //       id: req.body.id,
-  //       title: post.title,
-  //       shortDescription: post.shortDescription,
-  //       content: post.content,
-  //       blogId: blog.id,
-  //       blogName: blog.name,
-  //       createdAt: req.body.createdAt,
-  //     };
-  //
-  //     createdPosts.push(createdPost);
-  //   }
-  //   return createdPosts;
-  // },
+    for (let i = 0; i < count; i++) {
+      const blog = validBlogs[i];
+
+      if (!blog) break;
+
+      const req = await request(httpServer)
+        .post(paths.blogs)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
+        .send(blog)
+        .expect(HttpStatus.CREATED);
+
+      expect(req.body).toEqual({
+        id: expect.any(String),
+        name: blog.name,
+        description: blog.description,
+        websiteUrl: blog.websiteUrl,
+        createdAt: expect.any(String),
+        isMembership: expect.any(Boolean),
+      });
+
+      const createdBlog: BlogViewDto = {
+        id: req.body.id,
+        name: req.body.name,
+        description: req.body.description,
+        websiteUrl: req.body.websiteUrl,
+        createdAt: req.body.createdAt,
+        isMembership: req.body.isMembership,
+      };
+
+      createdBlogs.push(createdBlog);
+    }
+
+    return createdBlogs;
+  },
+
+  async posts(httpServer: App, count: number, config: CoreConfig): Promise<PostViewDto[]> {
+    const [blog] = await e2eSeeder.blogs(httpServer, 1, config);
+
+    const createdPosts: PostViewDto[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const post = validPosts[i];
+
+      if (!post) break;
+
+      const postInput: PostInputDto = {
+        blogId: blog.id,
+        content: post.content,
+        shortDescription: post.shortDescription,
+        title: post.title,
+      };
+
+      const req = await request(httpServer)
+        .post(paths.posts)
+        .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
+        .send(postInput)
+        .expect(HttpStatus.CREATED);
+
+      expect(req.body).toMatchObject({
+        id: expect.any(String),
+        title: post.title,
+        shortDescription: post.shortDescription,
+        content: post.content,
+        blogId: blog.id,
+        blogName: blog.name,
+        createdAt: expect.any(String),
+      });
+
+      const createdPost: PostViewDto = {
+        id: req.body.id,
+        title: post.title,
+        shortDescription: post.shortDescription,
+        content: post.content,
+        blogId: blog.id,
+        blogName: blog.name,
+        createdAt: req.body.createdAt,
+        extendedLikesInfo: req.body.extendedLikesInfo,
+      };
+
+      createdPosts.push(createdPost);
+    }
+    return createdPosts;
+  },
 };

@@ -21,6 +21,14 @@ import { GetPostsByBlogQueryHandler } from './blogs/application/queries/get-post
 import { CreatePostUseCase } from './posts/application/use-cases/create-post.use-case';
 import { DeletePostUseCase } from './posts/application/use-cases/delete-post.use-case';
 import { UpdatePostUseCase } from './posts/application/use-cases/update-post.use-case';
+import { CommentRepo } from './comments/infra/comment.repo';
+import { CreateCommentUseCase } from './comments/application/use-cases/create-comment.use-case';
+import { UpdateCommentUseCase } from './comments/application/use-cases/update-comment.use-case';
+import { DeleteCommentUseCase } from './comments/application/use-cases/delete-comment.use-case';
+import { LikesService } from './likes/application/likes.service';
+import { LikesRepo } from './likes/infra/likes.repo';
+import { UserAccountsModule } from '../user-accounts/user-accounts.module';
+import { Like, LikeSchema } from './likes/domain/like.entity';
 
 @Module({
   imports: [
@@ -28,7 +36,9 @@ import { UpdatePostUseCase } from './posts/application/use-cases/update-post.use
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
+      { name: Like.name, schema: LikeSchema },
     ]),
+    UserAccountsModule,
   ],
   controllers: [BlogsController, PostsController, CommentsController],
   providers: [
@@ -38,7 +48,10 @@ import { UpdatePostUseCase } from './posts/application/use-cases/update-post.use
     PostsService,
     PostsRepo,
     PostsQueryRepo,
+    CommentRepo,
     CommentsQueryRepo,
+    LikesService,
+    LikesRepo,
     CreateBlogUseCase,
     CreatePostByBlogUseCase,
     DeleteBlogUseCase,
@@ -47,6 +60,9 @@ import { UpdatePostUseCase } from './posts/application/use-cases/update-post.use
     CreatePostUseCase,
     DeletePostUseCase,
     UpdatePostUseCase,
+    CreateCommentUseCase,
+    UpdateCommentUseCase,
+    DeleteCommentUseCase,
   ],
 })
 export class BloggersPlatformModule {}
