@@ -29,7 +29,7 @@ import { LikesService } from './likes/application/likes.service';
 import { LikesRepo } from './likes/infra/likes.repo';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
 import { Like, LikeSchema } from './likes/domain/like.entity';
-import { CreateOrUpdateLikeCommand } from './likes/application/use-cases/create-or-update-like.use-case';
+import { CreateOrUpdateLikeUseCase } from './likes/application/use-cases/create-or-update-like.use-case';
 
 @Module({
   imports: [
@@ -64,7 +64,7 @@ import { CreateOrUpdateLikeCommand } from './likes/application/use-cases/create-
     CreateCommentUseCase,
     UpdateCommentUseCase,
     DeleteCommentUseCase,
-    CreateOrUpdateLikeCommand,
+    CreateOrUpdateLikeUseCase,
   ],
 })
 export class BloggersPlatformModule {}
