@@ -175,6 +175,14 @@ describe('blogs', () => {
       .expect(HttpStatus.NOT_FOUND);
   });
 
+  it("shouldn't delete blog with non-existent id, invalid mongo id", async () => {
+    const blogId = '63189b06003380';
+    await request(httpServer)
+      .delete(`${paths.blogs}/${blogId}`)
+      .set('Authorization', `Basic ${encodeToBase64(config.adminAuth)}`)
+      .expect(HttpStatus.NOT_FOUND);
+  });
+
   it('should delete blog with correct id', async () => {
     const blogId = dbBlogs[0].id;
     await request(httpServer)

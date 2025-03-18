@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument, BlogModelType } from '../domain/blog.entity';
+import { isValidObjectId } from '../../../../core/utils/objectId';
 
 @Injectable()
 export class BlogsRepo {
@@ -11,6 +12,10 @@ export class BlogsRepo {
   }
 
   async findById(id: string): Promise<BlogDocument | null> {
+    if (!isValidObjectId(id)) {
+      return null;
+    }
+
     return this.BlogModel.findOne({ _id: id, deletedAt: null });
   }
 }
