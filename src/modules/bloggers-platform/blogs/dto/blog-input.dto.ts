@@ -6,6 +6,9 @@ export class BlogInputDto {
   name: string;
   @ValidateString({ min: 3, max: 500 })
   description: string;
-  @ValidateString({ max: 100 })
+  @ValidateString({
+    max: 100,
+    regex: new RegExp('^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$'),
+  })
   websiteUrl: string;
 }
