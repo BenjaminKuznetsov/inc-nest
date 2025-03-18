@@ -8,6 +8,7 @@ import { FilterQuery } from 'mongoose';
 import { UsersRepo } from '../../../user-accounts/infrastructure/usersRepo';
 import { CommentRepo } from './comment.repo';
 import { LikesService } from '../../likes/application/likes.service';
+import { isValidObjectId } from '../../../../core/utils/objectId';
 
 @Injectable()
 export class CommentsQueryRepo {
@@ -48,6 +49,10 @@ export class CommentsQueryRepo {
   }
 
   async getById(id: string, userId?: string): Promise<CommentViewDto> {
+    if (!isValidObjectId(id)) {
+      throw new NotFoundException('Comment not found');
+    }
+
     const comment = await this.commentRepo.findById(id);
 
     if (!comment) {

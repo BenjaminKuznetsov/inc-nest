@@ -5,6 +5,7 @@ import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { FilterQuery } from 'mongoose';
 import { GetPostsQueryParams } from '../dto/posts-query-params.dto';
 import { PostViewDto } from '../dto/post-view.dto';
+import { isValidObjectId } from '../../../../core/utils/objectId';
 
 @Injectable()
 export class PostsQueryRepo {
@@ -35,6 +36,10 @@ export class PostsQueryRepo {
   }
 
   async getById(id: string): Promise<PostViewDto> {
+    if (!isValidObjectId(id)) {
+      throw new NotFoundException('Post not found');
+    }
+
     const post = await this.PostModel.findOne({ _id: id, deletedAt: null });
     if (!post) {
       throw new NotFoundException('Post not found');

@@ -5,14 +5,13 @@ import { BlogViewDto } from '../dto/blog-view.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogModelType } from '../domain/blog.entity';
 import { FilterQuery } from 'mongoose';
+import { isValidObjectId } from '../../../../core/utils/objectId';
 
 @Injectable()
 export class BlogsQueryRepo {
   constructor(@InjectModel(Blog.name) private BlogModel: BlogModelType) {}
 
-  async getAll(
-    query: GetBlogsQueryParams,
-  ): Promise<PaginatedViewDto<BlogViewDto>> {
+  async getAll(query: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto>> {
     const filter: FilterQuery<Blog> = { deletedAt: null };
 
     if (query.searchNameTerm) {
@@ -38,6 +37,10 @@ export class BlogsQueryRepo {
   }
 
   async getById(id: string): Promise<BlogViewDto> {
+    if (!isValidObjectId(id)) {
+      throw new NotFoundException('Blog not found');
+    }
+
     const blog = await this.BlogModel.findOne({ _id: id, deletedAt: null });
     if (!blog) {
       throw new NotFoundException('Blog not found');
