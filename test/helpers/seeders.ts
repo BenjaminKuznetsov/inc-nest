@@ -41,6 +41,8 @@ export const e2eSeeder = {
 
     const reqBody: UserViewDto = res1.body;
 
+    // console.log('reqBody', reqBody);
+
     const authInput: LoginInputDto = {
       loginOrEmail: userInput.login,
       password: userInput.password,

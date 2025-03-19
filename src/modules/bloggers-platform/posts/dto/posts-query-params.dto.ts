@@ -10,4 +10,5 @@ enum PostsSortBy {
 export class GetPostsQueryParams extends BaseSortablePaginationParams<PostsSortBy> {
   sortBy = PostsSortBy.CreatedAt;
   blogId: string | null = null;
+  userId?: string;
 }

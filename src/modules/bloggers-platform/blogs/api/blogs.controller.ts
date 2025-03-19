@@ -27,6 +27,7 @@ import { UpdateBlogCommand } from '../application/use-cases/update-blog.use-case
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.use-case';
 import { CreatePostByBlogCommand } from '../application/use-cases/create-post-by-blog.use-case';
 import { GetPostsByBlogQuery } from '../application/queries/get-posts-by-blog.query-handler';
+import { User } from '../../../../core/decorators/user';
 
 @Controller('blogs')
 export class BlogsController {
@@ -48,7 +49,8 @@ export class BlogsController {
   }
 
   @Get(':blogId/posts')
-  async getPosts(@Param('blogId') blogId: string, @Query() query: GetPostsQueryParams) {
+  async getPosts(@Param('blogId') blogId: string, @Query() query: GetPostsQueryParams, @User('id') userId?: string) {
+    query.userId = userId;
     return this.queryBus.execute(new GetPostsByBlogQuery(blogId, query));
   }
 

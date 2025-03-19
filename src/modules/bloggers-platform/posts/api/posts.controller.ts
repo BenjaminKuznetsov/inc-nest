@@ -42,13 +42,14 @@ export class PostsController {
   ) {}
 
   @Get()
-  getAll(@Query() query: GetPostsQueryParams): Promise<PaginatedViewDto<PostViewDto>> {
+  getAll(@Query() query: GetPostsQueryParams, @User('id') userId?: string): Promise<PaginatedViewDto<PostViewDto>> {
+    query.userId = userId;
     return this.postsQueryRepo.getAll(query);
   }
 
   @Get(':id')
-  getById(@Param('id') id: string): Promise<PostViewDto> {
-    return this.postsQueryRepo.getById(id);
+  getById(@Param('id') id: string, @User('id') userId?: string): Promise<PostViewDto> {
+    return this.postsQueryRepo.getById(id, userId);
   }
 
   @Get(':id/comments')
