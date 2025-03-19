@@ -46,15 +46,14 @@ export class CreateOrUpdateLikeUseCase implements ICommandHandler<CreateOrUpdate
     if (likeDocument) {
       likeDocument.updateLikeStatus(command.status);
       await this.likesRepo.save(likeDocument);
-      return;
+    } else {
+      const newLike = this.LikeModel.createInstance({
+        status: command.status,
+        authorId: command.authorId,
+        parentId: command.parentId,
+      });
+      await this.likesRepo.save(newLike);
     }
-
-    const newLike = this.LikeModel.createInstance({
-      status: command.status,
-      authorId: command.authorId,
-      parentId: command.parentId,
-    });
-    await this.likesRepo.save(newLike);
 
     parentEntity.calculateLikesCount(command.status, parentPrevLikeStatus);
     await parentEntity.save();

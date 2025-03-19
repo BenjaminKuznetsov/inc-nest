@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostModelType } from '../domain/post.entity';
+import { Post, PostDocument, PostModelType } from '../domain/post.entity';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { FilterQuery } from 'mongoose';
 import { GetPostsQueryParams } from '../dto/posts-query-params.dto';
@@ -36,7 +36,7 @@ export class PostsQueryRepo {
 
     const withLikesInfo = await Promise.all(
       result.map(async (post) => {
-        const likesInfo = await this.getLikesInfo(post.id.toString(), query.userId);
+        const likesInfo = await this.getLikesInfo(post, query.userId);
         return { post, likesInfo };
       }),
     );
@@ -59,18 +59,18 @@ export class PostsQueryRepo {
       throw new NotFoundException('Post not found');
     }
 
-    const likesInfo = await this.getLikesInfo(id, userId);
+    const likesInfo = await this.getLikesInfo(post, userId);
 
     return PostViewDto.mapToView(post, likesInfo);
   }
 
-  private async getLikesInfo(postId: string, userId?: string): Promise<ExtendedLikesInfo> {
-    const likesCount = await this.likesRepo.getCountByParentId(postId, LikeStatus.Like);
-    const dislikesCount = await this.likesRepo.getCountByParentId(postId, LikeStatus.Dislike);
+  private async getLikesInfo(post: PostDocument, userId?: string): Promise<ExtendedLikesInfo> {
+    const likesCount = post.likesCount;
+    const dislikesCount = post.dislikesCount;
 
-    const userStatus = await this.likesService.getUserLikeStatus(postId, userId);
+    const userStatus = await this.likesService.getUserLikeStatus(post.id, userId);
 
-    const newestLikes = await this.likesRepo.getLastThreeLikesByPostId(postId);
+    const newestLikes = await this.likesRepo.getLastThreeLikesByPostId(post.id);
 
     const mappedNewestLikes = newestLikes.map((like) => ({
       addedAt: like.createdAt.toISOString(),
