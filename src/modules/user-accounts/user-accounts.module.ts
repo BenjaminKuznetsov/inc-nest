@@ -22,6 +22,9 @@ import { LogoutUserUseCase } from './application/use-cases/logout-user.use-case'
 import { RecoverPasswordUseCase } from './application/use-cases/recover-password.use-case';
 import { RegisterUserUseCase } from './application/use-cases/register-user.use-case';
 import { ResendConfirmationEmailUseCase } from './application/use-cases/resend-confirmation-email.use-case';
+import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
+import { SessionsController } from './api/sessions.controller';
+import { GetUserSessionsQueryHandler } from './application/queries/get-user-sessions.query-handler';
 
 @Module({
   imports: [
@@ -39,7 +42,7 @@ import { ResendConfirmationEmailUseCase } from './application/use-cases/resend-c
     }),
     NotificationsModule,
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController, AuthController, SessionsController],
   providers: [
     ChangePasswordUseCase,
     ConfirmRegistrationUseCase,
@@ -52,11 +55,13 @@ import { ResendConfirmationEmailUseCase } from './application/use-cases/resend-c
     RecoverPasswordUseCase,
     RegisterUserUseCase,
     ResendConfirmationEmailUseCase,
+    RefreshTokenUseCase,
     SessionsRepo,
     UserAccountsConfig,
     UsersQueryRepo,
     UsersRepo,
     UsersService,
+    GetUserSessionsQueryHandler,
   ],
   exports: [MongooseModule, UserAccountsConfig, UsersRepo, JwtService],
 })

@@ -20,6 +20,7 @@ import { RecoverPasswordCommand } from '../application/use-cases/recover-passwor
 import { ChangePasswordCommand } from '../application/use-cases/change-password.use-case';
 import { LogoutUserCommand } from '../application/use-cases/logout-user.use-case';
 import { RegisterUserCommand } from '../application/use-cases/register-user.use-case';
+import { RefreshTokenCommand } from '../application/use-cases/refresh-token.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -89,10 +90,16 @@ export class AuthController {
     return this.commandBus.execute(new ChangePasswordCommand(input));
   }
 
-  // @Post(paths.auth.subs.refresh)
-  // async refresh() {
-  //   return {};
-  // }
+  @Post(paths.auth.subs.refresh)
+  async refreshToken(@Req() req: Request, @Res() res: Response): Promise<LoginViewDto> {
+    const refreshToken: string = req.cookies.refreshToken;
+    const result = await this.commandBus.execute(new RefreshTokenCommand(refreshToken));
+    // TODO: устанавливать куки по-нормальному
+    res
+      .cookie(this.config.refreshTokenCookieName, result.refreshToken, { httpOnly: true, secure: true })
+      .json({ accessToken: result.accessToken });
+    return { accessToken: result.accessToken };
+  }
 
   @Post(paths.auth.subs.logout)
   @HttpCode(HttpStatus.NO_CONTENT)

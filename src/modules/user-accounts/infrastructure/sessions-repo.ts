@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Session, SessionDocument, SessionModelType } from '../domain/session.entity';
 import { RefreshTokenPayload } from '../dto/token-payload';
@@ -19,5 +19,9 @@ export class SessionsRepo {
       exp: data.exp,
       deletedAt: null,
     });
+  }
+
+  async getSessionsByUserId(userId: string): Promise<SessionDocument[]> {
+    return this.SessionModel.find({ user_id: userId }).sort({ iat: -1 });
   }
 }
