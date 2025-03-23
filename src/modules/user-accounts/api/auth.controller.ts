@@ -21,8 +21,11 @@ import { ChangePasswordCommand } from '../application/use-cases/change-password.
 import { LogoutUserCommand } from '../application/use-cases/logout-user.use-case';
 import { RegisterUserCommand } from '../application/use-cases/register-user.use-case';
 import { RefreshTokenCommand } from '../application/use-cases/refresh-token.use-case';
+import { RefreshTokenAuthGuard } from '../../../core/guards/refresh-token-auth.guard';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -30,8 +33,9 @@ export class AuthController {
     private readonly usersQueryRepo: UsersQueryRepo,
   ) {}
 
-  @UseGuards(BearerAuthGuard)
   @Get(paths.auth.subs.me)
+  @SkipThrottle()
+  @UseGuards(BearerAuthGuard)
   async getMe(@User('id') userId: string): Promise<MeViewDto> {
     return this.usersQueryRepo.getMe(userId);
   }
@@ -42,7 +46,7 @@ export class AuthController {
     @Body() input: LoginInputDto,
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<LoginViewDto> {
     const result = await this.commandBus.execute(
       new LoginUserCommand({
@@ -52,11 +56,7 @@ export class AuthController {
         userAgent,
       }),
     );
-
-    // TODO: устанавливать куки по-нормальному
-    res
-      .cookie(this.config.refreshTokenCookieName, result.refreshToken, { httpOnly: true, secure: true })
-      .json({ accessToken: result.accessToken });
+    this.setAuthCookies(res, result.refreshToken);
     return { accessToken: result.accessToken };
   }
 
@@ -91,21 +91,35 @@ export class AuthController {
   }
 
   @Post(paths.auth.subs.refresh)
-  async refreshToken(@Req() req: Request, @Res() res: Response): Promise<LoginViewDto> {
-    const refreshToken: string = req.cookies.refreshToken;
-    const result = await this.commandBus.execute(new RefreshTokenCommand(refreshToken));
-    // TODO: устанавливать куки по-нормальному
-    res
-      .cookie(this.config.refreshTokenCookieName, result.refreshToken, { httpOnly: true, secure: true })
-      .json({ accessToken: result.accessToken });
+  @SkipThrottle()
+  @UseGuards(RefreshTokenAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(
+    @User('id') userId: string,
+    @User('deviceId') deviceId: string,
+    @User('iat') iat: number,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginViewDto> {
+    const result = await this.commandBus.execute(new RefreshTokenCommand(userId, deviceId, iat));
+    this.setAuthCookies(res, result.refreshToken);
     return { accessToken: result.accessToken };
   }
 
   @Post(paths.auth.subs.logout)
+  @SkipThrottle()
+  @UseGuards(RefreshTokenAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(@Req() req: Request, @Res() res: Response) {
-    const refreshToken: string = req.cookies.refreshToken;
-    await this.commandBus.execute(new LogoutUserCommand(refreshToken));
+  async logout(
+    @User('id') userId: string,
+    @User('deviceId') deviceId: string,
+    @User('iat') iat: number,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.commandBus.execute(new LogoutUserCommand(userId, deviceId, iat));
     res.clearCookie(this.config.refreshTokenCookieName, {});
+  }
+
+  private setAuthCookies(res: Response, refreshToken: string) {
+    res.cookie(this.config.refreshTokenCookieName, refreshToken, { httpOnly: true, secure: true });
   }
 }

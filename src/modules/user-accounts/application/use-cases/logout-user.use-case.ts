@@ -1,23 +1,21 @@
 import { UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '../jwt.service';
 import { SessionsRepo } from '../../infrastructure/sessions-repo';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class LogoutUserCommand {
-  constructor(public token: string) {}
+  constructor(
+    public userId: string,
+    public deviceId: string,
+    public iat: number,
+  ) {}
 }
 
 @CommandHandler(LogoutUserCommand)
 export class LogoutUserUseCase implements ICommandHandler<LogoutUserCommand> {
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly sessionsRepo: SessionsRepo,
-  ) {}
+  constructor(private readonly sessionsRepo: SessionsRepo) {}
 
-  async execute({ token }: LogoutUserCommand) {
-    const payload = await this.jwtService.verifyRefreshToken(token);
-
-    const session = await this.sessionsRepo.getSessionByTokenPayload(payload);
+  async execute({ userId, deviceId, iat }: LogoutUserCommand) {
+    const session = await this.sessionsRepo.getSession(userId, deviceId, iat);
     if (!session) {
       throw new UnauthorizedException();
     }

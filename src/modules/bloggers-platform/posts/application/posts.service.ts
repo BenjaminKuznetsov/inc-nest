@@ -1,14 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostModelType } from '../domain/post.entity';
+import { PostsRepo } from '../infra/post.repo';
 
 @Injectable()
 export class PostsService {
-  constructor(@InjectModel(Post.name) private readonly PostModel: PostModelType) {}
+  constructor(private readonly postsRepo: PostsRepo) {}
 
   async isPostExistOrThrowNotFound(id: string): Promise<void> {
-    // TODO: move to repository ???
-    const post = await this.PostModel.exists({ _id: id, deletedAt: null });
+    const post = await this.postsRepo.findById(id);
     if (!post) {
       throw new NotFoundException('Post not found');
     }

@@ -25,6 +25,9 @@ import { ResendConfirmationEmailUseCase } from './application/use-cases/resend-c
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
 import { SessionsController } from './api/sessions.controller';
 import { GetUserSessionsQueryHandler } from './application/queries/get-user-sessions.query-handler';
+import { TerminateAllOtherSessionsUseCase } from './application/use-cases/terminate-all-other-sessions.use-case';
+import { TerminateOneSessionUseCase } from './application/use-cases/terminate-one-session.use-case';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -32,13 +35,22 @@ import { GetUserSessionsQueryHandler } from './application/queries/get-user-sess
       { name: User.name, schema: UserSchema },
       { name: Session.name, schema: SessionSchema },
     ]),
-    // TODO: подключить конфиг
     JwtModule.registerAsync({
       imports: [UserAccountsModule],
       inject: [UserAccountsConfig],
       useFactory: (config: UserAccountsConfig) => ({
         secret: config.jwtTokenSecret,
       }),
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [UserAccountsModule],
+      inject: [UserAccountsConfig],
+      useFactory: (config: UserAccountsConfig) => [
+        {
+          ttl: config.tooManyRequestsTimeInSeconds * 1000,
+          limit: config.tooManyRequestsCount,
+        },
+      ],
     }),
     NotificationsModule,
   ],
@@ -62,6 +74,8 @@ import { GetUserSessionsQueryHandler } from './application/queries/get-user-sess
     UsersRepo,
     UsersService,
     GetUserSessionsQueryHandler,
+    TerminateAllOtherSessionsUseCase,
+    TerminateOneSessionUseCase,
   ],
   exports: [MongooseModule, UserAccountsConfig, UsersRepo, JwtService],
 })

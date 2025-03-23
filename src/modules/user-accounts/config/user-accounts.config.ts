@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { validateConfig } from '../../../core/utils/config-validation';
-import { IsNotEmpty, Matches } from 'class-validator';
+import { IsNotEmpty, IsNumber, Matches } from 'class-validator';
 
 @Injectable()
 export class UserAccountsConfig {
@@ -20,6 +20,12 @@ export class UserAccountsConfig {
 
   @IsNotEmpty({ message: 'Set Env variable REFRESH_TOKEN_COOKIE_NAME, should be not empty' })
   refreshTokenCookieName: string = this.configService.get('REFRESH_TOKEN_COOKIE_NAME');
+
+  @IsNumber({}, { message: 'Set Env variable TOO_MANY_REQUESTS_COUNT, should be a number' })
+  tooManyRequestsCount: number = parseInt(this.configService.get('TOO_MANY_REQUESTS_COUNT'));
+
+  @IsNumber({}, { message: 'Set Env variable TOO_MANY_REQUESTS_TIME_IN_SECONDS, should be a number' })
+  tooManyRequestsTimeInSeconds: number = parseInt(this.configService.get('TOO_MANY_REQUESTS_TIME_IN_SECONDS'));
 
   constructor(private configService: ConfigService<any, true>) {
     validateConfig(this);
